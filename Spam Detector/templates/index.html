@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentryAI // Advanced Analytics Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.4s ease, color 0.4s ease; }
+        
+        /* Core Entrance Keyframes Animations Framework */
+        @keyframes slideUpReveal { 
+            from { opacity: 0; transform: translateY(40px); filter: blur(4px); } 
+            to { opacity: 1; transform: translateY(0); filter: blur(0); } 
+        }
+        @keyframes slideLeftReveal { 
+            from { opacity: 0; transform: translateX(-60px); filter: blur(8px); } 
+            to { opacity: 1; transform: translateX(0); filter: blur(0); } 
+        }
+
+        /* Utility Class Bindings */
+        .animate-slide-up { opacity: 0; animation: slideUpReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-slide-left-brand { opacity: 0; animation: slideLeftReveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        /* Staggered Delay Intervals Matrix */
+        .delay-75 { animation-delay: 75ms; }
+        .delay-150 { animation-delay: 120ms; }
+        .delay-300 { animation-delay: 200ms; }
+        .delay-500 { animation-delay: 400ms; }
+        
+        /* Dark Theme overrides inspired by image_30ff4e.png */
+        .glassmorphism { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.06); }
+        .dark .glassmorphism { background: rgba(10, 15, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.03); box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5); }
+        .light-mode-card { background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(0, 0, 0, 0.06); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.04); }
+        
+        /* Unified Scroll Reveal Classes for Dynamic Intersections */
+        .reveal-on-scroll { opacity: 0; transform: translateY(35px); filter: blur(2px); transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal-on-scroll.active { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+        .eye-pupil { transition: transform 0.05s ease-out; }
+        @keyframes floatDroid {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float-droid { animation: floatDroid 4s ease-in-out infinite; }
+
+        /* CONSTANTLY MOVING AMBIENT BOKEH ORB SYSTEM SETUP */
+        .glow-orb-element {
+            position: absolute; border-radius: 50%; mix-blend-mode: screen;
+            filter: blur(80px); opacity: 0.45;
+            transition: top 8s ease-in-out, left 8s ease-in-out, width 6s ease-in-out, height 6s ease-in-out, opacity 4s ease-in-out;
+            pointer-events: none;
+        }
+        .dark .glow-orb-element { filter: blur(120px); opacity: 0.28; mix-blend-mode: plus-lighter; }
+    </style>
+</head>
+<body class="bg-white text-slate-900 dark:bg-[#070b19] dark:text-slate-100 min-h-screen overflow-x-hidden relative">
+
+    <div id="ambientGlowCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden bg-transparent">
+        <div id="orb-1" class="glow-orb-element w-[300px] h-[300px] bg-indigo-500/40"></div>
+        <div id="orb-2" class="glow-orb-element w-[250px] h-[250px] bg-purple-500/40"></div>
+        <div id="orb-3" class="glow-orb-element w-[350px] h-[350px] bg-blue-500/30"></div>
+    </div>
+
+    <nav class="fixed top-0 left-0 w-full z-50 px-6 py-4 transition-all duration-300 bg-white/70 dark:bg-[#070b19]/70 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/40">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold tracking-tighter text-sm shadow-md shadow-indigo-500/20">
+                    D⚡
+                </div>
+                <div>
+                    <span class="font-bold tracking-tight text-lg text-slate-900 dark:text-white">De-Spam<span class="text-indigo-500 font-extrabold">AI</span></span>
+                    <span class="hidden sm:inline-block font-mono text-[10px] text-slate-400 dark:text-slate-500 ml-2 border border-slate-200 dark:border-slate-800 px-1.5 py-0.5 rounded-md uppercase tracking-wider">v1.2.5</span>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-400">
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="hover:text-indigo-500 transition duration-150 font-bold text-indigo-500 dark:text-indigo-400">Home</button>
+                <button onclick="document.getElementById('app-main').scrollIntoView({ behavior: 'smooth' })" class="hover:text-indigo-500 transition duration-150">Terminal Console</button>
+                <button onclick="if(document.getElementById('xai-matrix-panel').classList.contains('hidden')) { scrollToExplanationPanel(); } else { document.getElementById('xai-matrix-panel').scrollIntoView({ behavior: 'smooth' }); }" class="hover:text-indigo-500 transition duration-150">XAI Decryption</button>
+                <button onclick="document.getElementById('logsContainer').scrollIntoView({ behavior: 'smooth', block: 'center' })" class="hover:text-indigo-500 transition duration-150">Historical Ledger</button>
+                <button onclick="document.getElementById('about-us-panel').scrollIntoView({ behavior: 'smooth' })" class="hover:text-indigo-500 transition duration-150">About Us</button>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 text-xs font-mono">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Node: Active</span>
+                </div>
+
+                <button onclick="toggleThemeEngine()" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 text-slate-700 dark:text-slate-300 transition-all duration-200">
+                    <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path></svg>
+                    <svg id="moonIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <span id="hero-top-marker" class="absolute top-0 left-0 w-1 h-1 pointer-events-none"></span>
+    <section class="w-full h-screen flex flex-col justify-center items-center px-4 bg-transparent z-10 relative">
+        <div class="text-center max-w-3xl z-10 space-y-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-sm font-medium animate-slide-up">
+                <span>⚙️ Adaptive Retraining Deployment Core</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-white line-clamp-2">
+                <span class="inline-block animate-slide-up delay-75">Guard Your Inboxes with</span> 
+                <span class="inline-block animate-slide-left-brand delay-300 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 drop-shadow-[0_2px_10px_rgba(165,180,252,0.15)]">De-SpamAI</span>
+            </h1>
+            
+            <button onclick="document.getElementById('app-main').scrollIntoView({ behavior: 'smooth' })" 
+                    class="mt-4 px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-600/20 transition-all duration-300 transform hover:-translate-y-0.5 animate-slide-up delay-500">
+                Launch Dashboard Console
+            </button>
+        </div>
+    </section>
+
+    <section id="app-main" class="w-full min-h-screen pt-24 pb-12 px-6 md:px-12 max-w-none space-y-8 reveal-on-scroll relative z-10">
+        <div class="border-b border-slate-200 dark:border-slate-800/60 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Analytical Processing Terminal</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Real-time vector classification deployment matrix.</p>
+            </div>
+            
+            <div class="bg-slate-50 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
+                <div>
+                    <span class="block text-[10px] uppercase text-slate-400 font-bold tracking-wider">Engine Accuracy</span>
+                    <span id="accuracyBadge" class="text-xl font-extrabold text-indigo-500 font-mono">{{ accuracy }}%</span>
+                </div>
+                <button onclick="triggerModelRetrain()" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl transition duration-200 shadow-md">
+                    ♻️ Retrain Model Live
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="glassmorphism light-mode-card p-6 rounded-3xl space-y-4 flex flex-col justify-between min-h-[340px]">
+                <div class="space-y-3 flex-grow relative flex flex-col">
+                    <div class="flex justify-between items-center w-full">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Suspicious Text Area Payload</label>
+                        
+                        <button id="micButton" onclick="toggleVoiceDictationEngine()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-950/60 dark:hover:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-200 flex items-center justify-center shadow-inner" title="Toggle Voice Dictation">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <textarea id="messageInput" 
+                              class="w-full flex-grow h-[180px] bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-200 resize-none dark:text-white"
+                              placeholder="Paste payload or click the microphone button to dictate message text live..."></textarea>
+                </div>
+                <button onclick="executeInference()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition duration-200 shadow-md flex-shrink-0">
+                    Run Model Verification
+                </button>
+            </div>
+
+            <div class="lg:col-span-2 glassmorphism light-mode-card p-6 rounded-3xl flex flex-col justify-between min-h-[340px]">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Metrics Over Time</span>
+                    <span class="text-xs font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md">Rolling Sessions</span>
+                </div>
+                <div class="w-full h-full min-h-[240px] relative flex items-center justify-center">
+                    <canvas id="performanceChart" class="w-full h-full"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+                <div id="resultCard" class="hidden p-6 rounded-3xl border transition-all duration-500 transform space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200/40 dark:border-slate-800/40 pb-4">
+                        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Analysis Matrix Output</h3>
+                        
+                        <div class="flex flex-wrap items-center gap-2 bg-white/60 dark:bg-slate-950/40 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs w-full sm:w-auto">
+                            <span class="text-slate-400 font-medium px-2">Is this classification correct?</span>
+                            <button onclick="submitUserFeedback('Ham')" class="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white border border-emerald-500/20 font-bold rounded-lg transition duration-150">👍 Yes, Clear</button>
+                            <button onclick="submitUserFeedback('Spam')" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white border border-rose-500/20 font-bold rounded-lg transition duration-150">👎 No, Flag Spam</button>
+                            <button onclick="scrollToExplanationPanel()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/10 font-bold rounded-lg transition duration-150 ml-auto flex items-center gap-1 shadow-sm">🔍 Explain AI Inference</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white/40 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl">
+                            <span class="block text-xs text-slate-400 font-medium mb-1">Target Assessment</span>
+                            <span id="outputLabel" class="text-3xl font-extrabold tracking-tight"></span>
+                        </div>
+                        <div class="bg-white/40 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl">
+                            <span class="block text-xs text-slate-400 font-medium mb-1">Inference Confidence</span>
+                            <span id="outputConfidence" class="text-3xl font-extrabold tracking-tight text-slate-800 dark:text-white"></span>
+                        </div>
+                        <div class="bg-white/40 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl">
+                            <span class="block text-xs text-slate-400 font-medium mb-1">System Routing Rule</span>
+                            <span id="outputAction" class="text-3xl font-extrabold tracking-tight"></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Payload Structural Threats Breakdown</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+                            <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex justify-between items-center">
+                                <span class="text-slate-500 dark:text-slate-400">Capitalization Frequency:</span>
+                                <span id="metricCaps" class="font-mono font-bold text-slate-800 dark:text-slate-200">0%</span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex justify-between items-center">
+                                <span class="text-slate-500 dark:text-slate-400">Suspicious Link Threat:</span>
+                                <span id="metricUrl" class="font-mono font-bold text-rose-500">Clear</span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex justify-between items-center">
+                                <span class="text-slate-500 dark:text-slate-400">Punctuation Density:</span>
+                                <span id="metricPunctuation" class="font-mono font-bold text-slate-800 dark:text-slate-200">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glassmorphism light-mode-card p-6 rounded-3xl flex flex-col justify-between min-h-[300px]">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Metrics Ratio Profile</h3>
+                        <span class="text-[10px] font-mono font-bold text-indigo-500 bg-indigo-500/10 px-2 py-0.5 rounded">Precision Split</span>
+                    </div>
+                    <div class="relative flex-grow flex items-center justify-center max-h-[200px] w-full">
+                        <canvas id="precisionPieChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 glassmorphism light-mode-card p-6 rounded-3xl flex flex-col min-h-[300px]">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Historical Ledger Logs</h3>
+                        <button onclick="refreshLogs()" class="text-xs text-indigo-500 font-medium hover:underline">Sync Logs</button>
+                    </div>
+                    <div id="logsContainer" class="space-y-3 overflow-y-auto max-h-[220px] pr-1 flex-grow"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="xai-matrix-panel" class="hidden w-full min-h-screen py-16 px-6 md:px-12 max-w-none border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 space-y-8 flex flex-col justify-center reveal-on-scroll relative z-10">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-6">
+            <span class="text-xs font-mono font-bold uppercase tracking-widest text-indigo-500">Feature Weight Analytics Matrix</span>
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight mt-1 text-slate-900 dark:text-white">Explainable AI (XAI) Decryption Matrix</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-base mt-1">This engine maps exactly how much statistical influence individual words had on the Naive Bayes probability outcome.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div class="glassmorphism light-mode-card p-6 rounded-3xl space-y-4">
+                <h3 class="text-lg font-bold tracking-tight">How to Interpret Vectors</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Our TF-IDF Vectorizer strips common English stopwords and calculates weights using mathematical log-probability differences.</p>
+                <div class="space-y-3 pt-2 text-xs">
+                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-rose-500 shadow-md shadow-rose-500/50"></span> <span class="text-slate-400 font-medium">High Positive Weight (> 0): High Spam Danger</span></div>
+                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-slate-400"></span> <span class="text-slate-400 font-medium">Neutral Score (~ 0): Balanced / Common Word</span></div>
+                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50"></span> <span class="text-slate-400 font-medium">Negative Weight (< 0): Strongly Correlated with Ham</span></div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 glassmorphism light-mode-card p-8 rounded-3xl min-h-[280px] flex flex-col justify-between">
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-6">Payload Token Tokenization Cloud Matrix</h3>
+                    <div id="tokenBadgeContainer" class="flex flex-wrap gap-3 items-center"></div>
+                </div>
+                <div class="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-400 font-mono">✦ Selected processing matrix node evaluation loop completed.</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about-us-panel" class="w-full min-h-screen py-20 px-6 md:px-12 max-w-none border-t border-slate-200 dark:border-slate-800 bg-gradient-to-b from-transparent to-slate-50 dark:to-slate-900/30 flex flex-col justify-center space-y-12 reveal-on-scroll relative z-10">
+        <div class="text-center max-w-3xl mx-auto space-y-3">
+            <span class="text-xs font-mono font-bold uppercase tracking-widest text-indigo-500">Project Blueprint</span>
+            <h2 class="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">Architectural Foundation</h2>
+            <p class="text-slate-500 dark:text-slate-400 text-base">SentryAI is an advanced academic research deployment bridging structural natural language processing with scalable full-stack telemetry paradigms.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto w-full">
+            <div id="about-card-1" class="glassmorphism light-mode-card p-6 rounded-3xl space-y-4 transform transition duration-300 hover:-translate-y-1 reveal-on-scroll">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold text-lg">⚠️</div>
+                <h3 class="text-xl font-bold tracking-tight">The Spam Epidemic</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Over 90% of mobile users receive deceptive spam texts daily, with text-based scam attempts jumping by 50% recently. Fueled by AI, these manipulative messages trick millions into financial and data loss every day.</p>
+            </div>
+
+            <div id="about-card-2" class="glassmorphism light-mode-card p-6 rounded-3xl space-y-4 transform transition duration-300 hover:-translate-y-1 reveal-on-scroll">
+                <div class="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-lg">🛡️</div>
+                <h3 class="text-xl font-bold tracking-tight">How This App Helps</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Our app acts as an explicit shield against these social engineering attacks. By executing localized vector calculations on unstructured text payloads, it instantly flags and Jordanizes malicious threats before they reach you.</p>
+            </div>
+
+            <div id="about-card-3" class="glassmorphism light-mode-card p-6 rounded-3xl space-y-4 transform transition duration-300 hover:-translate-y-1 md:col-span-2 lg:col-span-1 reveal-on-scroll">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-lg">⚡</div>
+                <h3 class="text-xl font-bold tracking-tight">Privacy-First Engine</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Built on an optimized, secure technical stack featuring localized machine learning pipelines. By executing complex text vectorization entirely on-device, the system ensures absolute data sovereignty—filtering threats in real-time without ever exposing personal conversations.</p>
+                <div class="pt-2 border-t border-slate-200/50 dark:border-slate-800/40 flex flex-wrap gap-2 text-[10px] font-mono tracking-wider font-bold text-slate-400 uppercase">
+                    <span class="bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded">On-Device ML</span>
+                    <span class="bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded text-indigo-500">Zero Data Logging</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-xs font-mono text-slate-400 dark:text-slate-500 pt-12 border-t border-slate-200/40 dark:border-slate-800/40 max-w-4xl mx-auto w-full">
+            © 2026 SentryAI Infrastructure Matrix. All computational calculations active.
+        </div>
+    </section>
+
+    <div id="ai-bot-container" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        
+        <div id="chatbot-drawer" class="w-[340px] h-[450px] bg-slate-950/95 border border-purple-500/30 rounded-[28px] shadow-2xl shadow-purple-950/40 flex flex-col overflow-hidden hidden transform scale-95 opacity-0 transition-all duration-300 origin-bottom-right mb-4">
+            <div class="p-4 border-b border-purple-500/20 bg-gradient-to-r from-purple-950/40 to-slate-950 flex justify-between items-center font-mono">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-2 h-2 rounded-full bg-purple-400 shadow shadow-purple-400 animate-pulse"></span>
+                    <span class="font-bold text-xs text-purple-400 tracking-wider uppercase">Sentry_Companion_v2</span>
+                </div>
+                <button onclick="toggleChatbotCanvasDrawer()" class="text-slate-500 hover:text-purple-400 transition font-bold text-xs">✕</button>
+            </div>
+
+            <div id="chat-messages-box" class="flex-grow p-4 overflow-y-auto space-y-4 font-sans text-xs text-slate-300">
+                <div class="p-3.5 bg-purple-950/20 border border-purple-800/30 text-purple-300 rounded-2xl rounded-tl-none leading-relaxed">
+                    System initialized. Standing by for interface prompts. Ask about **"XAI"**, **"Retrain"**, or **"Accuracy"** to sync registers.
+                </div>
+            </div>
+
+            <div class="p-3 border-t border-purple-500/20 bg-slate-950 flex gap-2 font-mono">
+                <input type="text" id="botMessageInput" onkeydown="if(event.key === 'Enter') dispatchChatbotPayloadServer()" 
+                       class="flex-grow bg-slate-900 border border-purple-500/20 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-purple-500/50 text-purple-300 placeholder-purple-900/60" 
+                       placeholder="Enter terminal prompt...">
+                <button onclick="dispatchChatbotPayloadServer()" class="px-4 bg-purple-950/40 border border-purple-500/40 hover:bg-purple-900/40 text-purple-300 rounded-xl text-xs transition duration-150 font-bold">
+                    EXEC
+                </button>
+            </div>
+        </div>
+
+        <div onclick="toggleChatbotCanvasDrawer()" class="animate-float-droid cursor-pointer flex flex-col items-center group select-none">
+            <div class="w-2 h-2 rounded-full bg-slate-100 dark:bg-slate-300 border border-slate-400/40 shadow-sm shadow-white"></div>
+            <div class="w-1 h-2 bg-slate-200 dark:bg-slate-400"></div>
+
+            <div class="w-20 h-16 bg-slate-50 dark:bg-slate-100 rounded-t-[40px] rounded-b-[30px] border border-slate-300 dark:border-slate-200/90 flex items-center justify-center relative shadow-xl shadow-black/10 group-hover:scale-105 active:scale-95 transition-all duration-300">
+                <div class="w-[84%] h-9 bg-slate-950 rounded-2xl flex items-center justify-around px-2 shadow-inner border border-slate-800 relative overflow-hidden">
+                    <div class="eye-socket w-4 h-4 rounded-full bg-slate-900/80 relative flex items-center justify-center overflow-hidden border border-purple-500/10">
+                        <div id="leftDioramaEye" class="eye-pupil absolute text-[10px] font-black text-purple-400 font-mono drop-shadow-[0_0_3px_#c084fc] transform -scale-y-100 rotate-45 mt-0.5 text-center leading-none select-none">^</div>
+                    </div>
+                    <div class="eye-socket w-4 h-4 rounded-full bg-slate-900/80 relative flex items-center justify-center overflow-hidden border border-purple-500/10">
+                        <div id="rightDioramaEye" class="eye-pupil absolute text-[10px] font-black text-purple-400 font-mono drop-shadow-[0_0_3px_#c084fc] transform -scale-y-100 rotate-45 mt-0.5 text-center leading-none select-none">^</div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-10 h-1 bg-purple-500/20 dark:bg-purple-500/30 rounded-full blur-[1px] mt-2 opacity-80 group-hover:scale-75 transition-all duration-300"></div>
+        </div>
+    </div>
+
+    <script>
+        let chartInstance = null;
+        let precisionPieChartInstance = null; 
+        let currentActiveLogId = null; 
+        let activePayloadTokensCache = []; 
+        let speechDictationInstance = null;
+        let isActivelyDictating = false;
+        
+        let graphLabels = [];
+        let spamScoresData = [];
+        let hamScoresData = [];
+
+        // RE-ENGINEERED DYNAMIC ORB DISPLACEMENT MOTOR
+        function updateAmbientPlasmaCoordinates() {
+            const orbs = document.querySelectorAll('.glow-orb-element');
+            const statesColors = {
+                'Neutral': ['#6366f1', '#a855f7', '#3b82f6'],
+                'Spam':    ['#f43f5e', '#ec4899', '#d946ef'],
+                'Ham':     ['#10b981', '#06b6d4', '#3b82f6'],
+                'Processing': ['#6366f1', '#2563eb', '#1d4ed8']
+            };
+            
+            // Fallback default state signature context
+            window.currentPlasmaState = window.currentPlasmaState || 'Neutral';
+            const palette = statesColors[window.currentPlasmaState];
+
+            orbs.forEach((orb, index) => {
+                // Randomly generate coordinate markers across viewport frames
+                const randX = Math.floor(Math.random() * 75); 
+                const randY = Math.floor(Math.random() * 70);
+                const randSize = Math.floor(Math.random() * 180) + 220; // Drifts between 220px and 400px
+                const randOpacity = (Math.random() * 0.25) + (document.documentElement.classList.contains('dark') ? 0.08 : 0.25);
+
+                orb.style.left = `${randX}%`;
+                orb.style.top = `${randY}%`;
+                orb.style.width = `${randSize}px`;
+                orb.style.height = `${randSize}px`;
+                orb.style.opacity = randOpacity;
+                orb.style.backgroundColor = palette[index % palette.length];
+            });
+        }
+
+        function triggerGeminiAmbientGlowEngine(targetState) {
+            window.currentPlasmaState = targetState;
+            updateAmbientPlasmaCoordinates(); // Force immediate coordinate updates on action trigger
+        }
+
+        function prePopulateBaselineChartArrays() {
+            const now = new Date();
+            graphLabels = [];
+            spamScoresData = [];
+            hamScoresData = []; // FIXED
+            
+            for (let i = 6; i >= 0; i--) {
+                let pastTime = new Date(now.getTime() - i * 10 * 60 * 1000);
+                graphLabels.push(pastTime.toTimeString().split(' ')[0]);
+                spamScoresData.push(0);  
+                hamScoresData.push(0); // FIXED  
+            }
+        }
+
+        function initializePieDistributionChart(spamCount = 3, hamCount = 7) {
+            const ctx = document.getElementById('precisionPieChart').getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const borderLineColor = isDark ? '#0a0f1e' : '#ffffff';
+            const legendTextColor = isDark ? '#94a3b8' : '#475569';
+
+            if(precisionPieChartInstance) { precisionPieChartInstance.destroy(); }
+
+            precisionPieChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Threat / Spam Logs', 'Verified / Ham Ledger'],
+                    datasets: [{
+                        data: [spamCount, hamCount],
+                        backgroundColor: ['#f43f5e', '#10b981'],
+                        borderColor: borderLineColor,
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: legendTextColor,
+                                boxWidth: 12,
+                                font: { family: 'Plus Jakarta Sans', size: 10, weight: '500' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeSpeechRecognitionEngine() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                document.getElementById('micButton').style.display = 'none';
+                return;
+            }
+            
+            speechDictationInstance = new SpeechRecognition();
+            speechDictationInstance.continuous = true;
+            speechDictationInstance.interimResults = false;
+            speechDictationInstance.lang = 'en-US';
+
+            speechDictationInstance.onstart = () => {
+                isActivelyDictating = true;
+                const micBtn = document.getElementById('micButton');
+                micBtn.className = "p-2 rounded-xl bg-purple-500/20 border border-purple-500 text-purple-500 transition-all duration-200 flex items-center justify-center animate-pulse shadow-md shadow-purple-500/10";
+            };
+
+            speechDictationInstance.onresult = (event) => {
+                const speechResultText = event.results[event.results.length - 1][0].transcript;
+                const textarea = document.getElementById('messageInput');
+                
+                if (textarea.value.trim() === "") {
+                    textarea.value = speechResultText.trim();
+                } else {
+                    textarea.value += " " + speechResultText.trim();
+                }
+            };
+
+            speechDictationInstance.onerror = (err) => {
+                console.error("Speech recognition framework parameter fault logged: ", err.error);
+                forceStopDictationEngine();
+            };
+
+            speechDictationInstance.onend = () => {
+                forceStopDictationEngine();
+            };
+        }
+
+        function toggleVoiceDictationEngine() {
+            if (!speechDictationInstance) return;
+            if (!isActivelyDictating) {
+                speechDictationInstance.start();
+            } else {
+                speechDictationInstance.stop();
+            }
+        }
+
+        function forceStopDictationEngine() {
+            isActivelyDictating = false;
+            const micBtn = document.getElementById('micButton');
+            micBtn.className = "p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-950/60 dark:hover:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-200 flex items-center justify-center shadow-inner";
+            if (speechDictationInstance) { try { speechDictationInstance.stop(); } catch(e){} }
+        }
+
+        function initScrollIntersectionEngine() {
+            const elements = document.querySelectorAll('.reveal-on-scroll');
+            
+            const observerOptions = {
+                root: null,
+                threshold: 0.08, 
+                rootMargin: "0px 0px -20px 0px"
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    } else {
+                        entry.target.classList.remove('active');
+                    }
+                });
+            }, observerOptions);
+
+            elements.forEach(el => observer.observe(el));
+            
+            const aboutCards = document.querySelectorAll('#about-us-panel .reveal-on-scroll');
+            aboutCards.forEach((card, idx) => {
+                card.style.transitionDelay = `${idx * 120}ms`;
+            });
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            const pupils = document.querySelectorAll('.eye-pupil');
+            pupils.forEach(pupil => {
+                const eyeSocket = pupil.parentElement;
+                const bounds = eyeSocket.getBoundingClientRect();
+                
+                const eyeCenterX = bounds.left + bounds.width / 2;
+                const eyeCenterY = bounds.top + bounds.height / 2;
+                
+                const deltaX = e.clientX - eyeCenterX;
+                const deltaY = e.clientY - eyeCenterY;
+                
+                const angle = Math.atan2(deltaY, deltaX);
+                
+                const maxDistance = 2.0; 
+                const moveX = Math.cos(angle) * maxDistance;
+                const moveY = Math.sin(angle) * maxDistance;
+                
+                pupil.style.transform = `translate(${moveX}px, ${moveY}px) rotate(45deg)`;
+            });
+        });
+
+        function initializePerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.05)';
+            const textColor = isDark ? '#64748b' : '#475569';
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: graphLabels,
+                    datasets: [
+                        {
+                            label: 'Spam Threat Index (%)',
+                            borderColor: '#f43f5e',
+                            backgroundColor: 'rgba(244, 63, 94, 0.01)',
+                            data: spamScoresData,
+                            borderWidth: 2.5,
+                            tension: 0.45,   
+                            fill: false,
+                            pointRadius: 0,  
+                            pointHoverRadius: 5
+                        },
+                        {
+                            label: 'Ham Verification Score (%)',
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.01)',
+                            data: hamScoresData, // FIXED
+                            borderWidth: 2.5,
+                            tension: 0.45,   
+                            fill: false,
+                            pointRadius: 0,  
+                            pointHoverRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            position: 'top',
+                            align: 'end',
+                            labels: { 
+                                color: textColor, 
+                                boxWidth: 10,
+                                font: { family: 'Plus Jakarta Sans', size: 11, weight: '500' } 
+                            } 
+                        }
+                    },
+                    scales: {
+                        x: { 
+                            grid: { color: gridColor, drawTicks: false }, 
+                            ticks: { color: textColor, font: { family: 'Plus Jakarta Sans', size: 10 } } 
+                        },
+                        y: { 
+                            min: 0, 
+                            max: 100, 
+                            grid: { color: gridColor, drawTicks: false }, 
+                            ticks: { 
+                                color: textColor, 
+                                stepSize: 20,
+                                font: { family: 'Plus Jakarta Sans', size: 10 },
+                                callback: function(value) { return value + "%"; }
+                            } 
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChartData(newSpam, newHam) {
+            const now = new Date();
+            const timeString = now.toTimeString().split(' ')[0];
+
+            graphLabels.shift();
+            graphLabels.push(timeString);
+            spamScoresData.shift();
+            spamScoresData.push(newSpam);
+            hamScoresData.shift();
+            hamScoresData.push(newHam);
+
+            chartInstance.update();
+        }
+
+        function toggleThemeEngine() {
+            const htmlNode = document.documentElement;
+            const sun = document.getElementById('sunIcon');
+            const moon = document.getElementById('moonIcon');
+
+            if (htmlNode.classList.contains('dark')) {
+                htmlNode.classList.remove('dark'); sun.classList.remove('hidden'); moon.classList.add('hidden');
+            } else {
+                htmlNode.classList.add('dark'); sun.classList.add('hidden'); moon.classList.remove('hidden');
+            }
+            if(chartInstance) { chartInstance.destroy(); initializePerformanceChart(); }
+            if(precisionPieChartInstance) { initializePieDistributionChart(); }
+        }
+
+        async function executeInference() {
+            const text = document.getElementById('messageInput').value;
+            if(!text.trim()) return alert("Payload input buffer empty.");
+
+            triggerGeminiAmbientGlowEngine('Processing');
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await response.json();
+                
+                if(data.status === 'success') {
+                    currentActiveLogId = data.log_id; 
+                    activePayloadTokensCache = data.tokens; 
+                    
+                    const card = document.getElementById('resultCard');
+                    const labelSpan = document.getElementById('outputLabel');
+                    const actionSpan = document.getElementById('outputAction');
+                    const leftEye = document.getElementById('leftDioramaEye');
+                    const rightEye = document.getElementById('rightDioramaEye');
+
+                    setTimeout(() => {
+                        card.classList.remove('hidden');
+                        setTimeout(() => { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 50);
+
+                        labelSpan.innerText = data.classification;
+                        document.getElementById('outputConfidence').innerText = data.confidence;
+                        actionSpan.innerText = data.action;
+
+                        if(data.classification === 'Spam') {
+                            card.className = "p-6 rounded-3xl border border-rose-500/40 bg-rose-500/5 transition-all duration-500 transform space-y-6";
+                            labelSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
+                            actionSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
+                            leftEye.innerText = "—"; rightEye.innerText = "—";
+                            
+                            triggerGeminiAmbientGlowEngine('Spam');
+                        } else {
+                            card.className = "p-6 rounded-3xl border border-emerald-500/40 bg-emerald-500/5 transition-all duration-500 transform space-y-6";
+                            labelSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
+                            actionSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
+                            leftEye.innerText = "^"; rightEye.innerText = "^";
+                            
+                            triggerGeminiAmbientGlowEngine('Ham');
+                        }
+
+                        document.getElementById('metricCaps').innerText = data.caps_ratio + "%";
+                        document.getElementById('metricPunctuation').innerText = data.punctuation_score + "%";
+
+                        const urlField = document.getElementById('metricUrl');
+                        if(data.url_threat > 0) {
+                            urlField.innerText = "CRITICAL / Link Flagged";
+                            urlField.className = "font-mono font-bold text-rose-500 animate-pulse";
+                        } else {
+                            urlField.innerText = "Passed / Secure";
+                            urlField.className = "font-mono font-bold text-emerald-500";
+                        }
+
+                        updateChartData(data.spam_score, data.ham_score);
+                        refreshLogs();
+                        
+                        document.getElementById('xai-matrix-panel').classList.add('hidden');
+                    }, 650); 
+                }
+            } catch (err) { 
+                console.error("Exception processing network inference: ", err);
+                triggerGeminiAmbientGlowEngine('Neutral');
+            }
+        }
+
+        function scrollToExplanationPanel() {
+            const container = document.getElementById('tokenBadgeContainer');
+            const panel = document.getElementById('xai-matrix-panel');
+            container.innerHTML = ''; 
+
+            if(!activePayloadTokensCache || activePayloadTokensCache.length === 0) {
+                container.innerHTML = `<p class="text-sm text-slate-400 py-4 font-mono">No vocabulary tokens registered in this string payload matrix pattern.</p>`;
+            } else {
+                activePayloadTokensCache.forEach(token => {
+                    const badge = document.createElement('div');
+                    let colorStyles = "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300";
+                    
+                    if(token.weight > 0.4) {
+                        colorStyles = "bg-rose-500/10 text-rose-500 border-rose-500/30 font-bold shadow-sm shadow-rose-500/5";
+                    } else if(token.weight < -0.4) {
+                        colorStyles = "bg-emerald-500/10 text-emerald-500 border-emerald-500/30 font-bold shadow-sm shadow-emerald-500/5";
+                    }
+                    
+                    badge.className = `px-4 py-2 rounded-2xl border text-sm font-mono flex items-center gap-2 tracking-wide transition-all duration-300 transform hover:scale-105 ${colorStyles}`;
+                    badge.innerHTML = `
+                        <span>${token.word}</span>
+                        <span class="text-[10px] bg-white/20 dark:bg-black/20 px-1.5 py-0.5 rounded-md font-bold">${token.weight > 0 ? '+' + token.weight : token.weight}</span>
+                    `;
+                    container.appendChild(badge);
+                });
+            }
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        async function submitUserFeedback(votedLabel) {
+            if(!currentActiveLogId) return alert("Analyze a text payload before submitting feedback.");
+            try {
+                const response = await fetch('/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ log_id: currentActiveLogId, user_label: votedLabel })
+                });
+                const data = await response.json();
+                if(data.status === 'success') {
+                    alert("Feedback recorded. Click 'Retrain Model Live' to compile structural overrides.");
+                    refreshLogs();
+                }
+            } catch(e) { console.error("Feedback pipeline error: ", e); }
+        }
+
+        async function triggerModelRetrain() {
+            try {
+                const response = await fetch('/retrain', { method: 'POST' });
+                const data = await response.json();
+                alert(data.message);
+                if(data.status === 'success') {
+                    document.getElementById('accuracyBadge').innerText = data.new_accuracy + "%";
+                }
+            } catch(e) { console.error("Retraining process exception: ", e); }
+        }
+
+        async function refreshLogs() {
+            try {
+                const response = await fetch('/logs');
+                const logs = await response.json();
+                const container = document.getElementById('logsContainer');
+                container.innerHTML = '';
+
+                if(logs.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-400 text-center py-8">Ledger record schema clear.</p>`;
+                    initializePieDistributionChart(0, 0);
+                    return;
+                }
+
+                let spamDistributionCount = 0;
+                let hamDistributionCount = 0;
+
+                logs.forEach((log, index) => {
+                    const isSpam = log.classification_label === 'Spam';
+                    if(isSpam) { spamDistributionCount++; } else { hamDistributionCount++; }
+
+                    const badge = isSpam ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+                    const correctionLabel = log.user_label ? `<span class="text-[10px] text-amber-500 border border-amber-500/30 bg-amber-500/10 px-1 py-0.5 rounded ml-2 font-medium">Corrected: ${log.user_label}</span>` : '';
+                    
+                    const item = document.createElement('div');
+                    item.className = "p-3 bg-slate-50 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 rounded-xl space-y-2 text-xs animate-slide-up";
+                    item.style.animationDelay = `${index * 40}ms`;
+                    
+                    item.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="px-2 py-0.5 rounded border text-[10px] uppercase font-semibold ${badge}">${log.classification_label}</span>
+                                ${correctionLabel}
+                            </div>
+                            <span class="text-slate-400 font-mono">${log.spam_probability}% Spam</span>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 truncate font-sans">${log.raw_text}</p>
+                    `;
+                    container.appendChild(item);
+                });
+
+                initializePieDistributionChart(spamDistributionCount, hamDistributionCount);
+
+            } catch (err) { console.error("Logs update loop failed: ", err); }
+        }
+
+        // CORRECTED ORB MOTOR COORD LOOP ANCHOR LOCATION
+        function toggleChatbotCanvasDrawer() {
+            const drawer = document.getElementById('chatbot-drawer');
+            if(drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                setTimeout(() => {
+                    drawer.classList.remove('scale-95', 'opacity-0');
+                    drawer.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            } else {
+                drawer.classList.remove('scale-100', 'opacity-100');
+                drawer.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => drawer.classList.add('hidden'), 300);
+            }
+        }
+
+        // FIXED: Replaced explicit onclick binding with event-delegation form submission logic to enable button clicks and 'Enter' press simultaneously.
+        function initChatbotSubmissionEngine() {
+            const form = document.getElementById('chatbotSubmitForm');
+            const input = document.getElementById('botMessageInput');
+
+            if (!form || !input) return;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevents standard browser form refresh matrix interruption
+                dispatchChatbotPayloadServer(input.value.trim());
+                input.value = ''; // Flushes buffer post-submission
+            });
+        }
+
+        async function dispatchChatbotPayloadServer(userMsg) {
+            if(!userMsg) return;
+            
+            const msgBox = document.getElementById('chat-messages-box');
+            
+            // Renders immediate user echo badge stream
+            msgBox.innerHTML += `
+                <div class="p-3 bg-slate-900 border border-slate-800 text-slate-300 max-w-[85%] ml-auto leading-relaxed rounded-2xl rounded-tr-none animate-slide-up">
+                    > ${userMsg}
+                </div>
+            `;
+            msgBox.scrollTop = msgBox.scrollHeight;
+
+            try {
+                // Connects backend interface channel logic block
+                const response = await fetch('/bot_chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMsg })
+                });
+                const data = await response.json();
+                
+                // Renders backend companion logic response packet stream
+                msgBox.innerHTML += `
+                    <div class="p-3 bg-purple-950/20 border border-purple-800/30 text-purple-400 max-w-[85%] leading-relaxed rounded-2xl rounded-tl-none animate-slide-up">
+                        [COMPANION]: ${data.response}
+                    </div>
+                `;
+                msgBox.scrollTop = msgBox.scrollHeight;
+            } catch(e) { console.error("Chat API node down: ", e); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            prePopulateBaselineChartArrays(); 
+            initializePerformanceChart();   
+            refreshLogs();
+            initScrollIntersectionEngine();
+            initializeSpeechRecognitionEngine();
+            
+            // FIXED: Connected submission interface motor anchor point location matrix node
+            initChatbotSubmissionEngine();
+
+            // Lock active plasma movement interval loop (Cycles coordinates seamlessly every 4.2 seconds)
+            updateAmbientPlasmaCoordinates();
+            setInterval(updateAmbientPlasmaCoordinates, 4200);
+        });
+    </script>
+</body>
+</html>
+
+<!-- git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/yourusername/yourrepo.git
+git push -u origin main -->
