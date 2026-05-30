@@ -223,15 +223,15 @@ def bot_chat():
     if 'accuracy' in user_message or 'score' in user_message:
         return jsonify({'response': 'The security infrastructure accuracy matrix is currently processing telemetry variables live at the top of your console panel.'})
     elif 'spam' in user_message or 'phishing' in user_message:
-        return jsonify({'response': 'Paste any suspicious text payload into the primary terminal block. SentryAI will decode capitalization ratios, link structural traps, and display feature logs.'})
+        return jsonify({'response': 'Paste any suspicious text payload into the primary terminal block. De_SpamAI will decode capitalization ratios, link structural traps, and display feature logs.'})
     elif 'retrain' in user_message or 'update' in user_message:
         return jsonify({'response': 'If the core ML pipeline maps an entry incorrectly, toggle the manual feedback overrides (👍/👎). Then trigger "Retrain Model Live" to run the Scikit-Learn refit sequence.'})
     elif 'xai' in user_message or 'explain' in user_message:
         return jsonify({'response': 'Click the "Explain AI Inference" button on any generated report. The viewport will glide to the bottom matrix cloud to reveal individual token feature log-probability weights.'})
     elif 'lucky' in user_message or 'gupta' in user_message or 'developer' in user_message:
-        return jsonify({'response': 'SentryAI was designed and engineered by Lucky Gupta, a CSE student deploying full-stack machine learning architectures.'})
+        return jsonify({'response': 'De_SpamAI was designed and engineered by Lucky Gupta, a CSE student deploying full-stack machine learning architectures.'})
     else:
-        return jsonify({'response': 'SentryAI active node standing by. Type keywords like "retrain", "spam", "XAI", or "accuracy" to query my documentation registers.'})
+        return jsonify({'response': 'De_SpamAI active node standing by. Type keywords like "retrain", "spam", "XAI", or "accuracy" to query my documentation registers.'})
 
 if __name__ == '__main__':
     init_db()
