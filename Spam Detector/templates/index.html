@@ -35,7 +35,7 @@
         .delay-300 { animation-delay: 200ms; }
         .delay-500 { animation-delay: 400ms; }
         
-        /* Dark Theme overrides inspired by image_30ff4e.png */
+        /* Dark Theme overrides */
         .glassmorphism { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.06); }
         .dark .glassmorphism { background: rgba(10, 15, 30, 0.6); border: 1px solid rgba(255, 255, 255, 0.03); box-shadow: 0 20px 40px -15px rgba(0,0,0,0.5); }
         .light-mode-card { background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(0, 0, 0, 0.06); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.04); }
@@ -52,12 +52,14 @@
         }
         .animate-float-droid { animation: floatDroid 4s ease-in-out infinite; }
 
-        /* CONSTANTLY MOVING AMBIENT BOKEH ORB SYSTEM SETUP */
+        /* PERFORMANCE OPTIMIZED GPU-BOUND BOKEH ORB BASE STRUCTURE */
         .glow-orb-element {
             position: absolute; border-radius: 50%; mix-blend-mode: screen;
             filter: blur(80px); opacity: 0.45;
-            transition: top 8s ease-in-out, left 8s ease-in-out, width 6s ease-in-out, height 6s ease-in-out, opacity 4s ease-in-out;
+            transition: transform 4.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 4s ease-in-out, background-color 1.5s ease;
             pointer-events: none;
+            top: 0;
+            left: 0;
         }
         .dark .glow-orb-element { filter: blur(120px); opacity: 0.28; mix-blend-mode: plus-lighter; }
     </style>
@@ -261,9 +263,9 @@
                 <h3 class="text-lg font-bold tracking-tight">How to Interpret Vectors</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Our TF-IDF Vectorizer strips common English stopwords and calculates weights using mathematical log-probability differences.</p>
                 <div class="space-y-3 pt-2 text-xs">
-                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-rose-500 shadow-md shadow-rose-500/50"></span> <span class="text-slate-400 font-medium">High Positive Weight (> 0): High Spam Danger</span></div>
+                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-rose-500 shadow-md shadow-rose-500/50"></span> <span class="text-slate-400 font-medium">High Positive Weight (&gt; 0): High Spam Danger</span></div>
                     <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-slate-400"></span> <span class="text-slate-400 font-medium">Neutral Score (~ 0): Balanced / Common Word</span></div>
-                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50"></span> <span class="text-slate-400 font-medium">Negative Weight (< 0): Strongly Correlated with Ham</span></div>
+                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50"></span> <span class="text-slate-400 font-medium">Negative Weight (&lt; 0): Strongly Correlated with Ham</span></div>
                 </div>
             </div>
 
@@ -330,14 +332,14 @@
                 </div>
             </div>
 
-            <div class="p-3 border-t border-purple-500/20 bg-slate-950 flex gap-2 font-mono">
-                <input type="text" id="botMessageInput" onkeydown="if(event.key === 'Enter') dispatchChatbotPayloadServer()" 
+            <form id="chatbotSubmitForm" class="p-3 border-t border-purple-500/20 bg-slate-950 flex gap-2 font-mono">
+                <input type="text" id="botMessageInput" 
                        class="flex-grow bg-slate-900 border border-purple-500/20 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-purple-500/50 text-purple-300 placeholder-purple-900/60" 
                        placeholder="Enter terminal prompt...">
-                <button onclick="dispatchChatbotPayloadServer()" class="px-4 bg-purple-950/40 border border-purple-500/40 hover:bg-purple-900/40 text-purple-300 rounded-xl text-xs transition duration-150 font-bold">
+                <button type="submit" class="px-4 bg-purple-950/40 border border-purple-500/40 hover:bg-purple-900/40 text-purple-300 rounded-xl text-xs transition duration-150 font-bold">
                     EXEC
                 </button>
-            </div>
+            </form>
         </div>
 
         <div onclick="toggleChatbotCanvasDrawer()" class="animate-float-droid cursor-pointer flex flex-col items-center group select-none">
@@ -370,9 +372,11 @@
         let spamScoresData = [];
         let hamScoresData = [];
 
-        // RE-ENGINEERED DYNAMIC ORB DISPLACEMENT MOTOR
+        // PERFORMANCE-OPTIMIZED DYNAMIC ORB DISPLACEMENT MOTOR (HARDWARE GPU ACCELERATED)
         function updateAmbientPlasmaCoordinates() {
             const orbs = document.querySelectorAll('.glow-orb-element');
+            if (orbs.length === 0) return;
+
             const statesColors = {
                 'Neutral': ['#6366f1', '#a855f7', '#3b82f6'],
                 'Spam':    ['#f43f5e', '#ec4899', '#d946ef'],
@@ -380,47 +384,46 @@
                 'Processing': ['#6366f1', '#2563eb', '#1d4ed8']
             };
             
-            // Fallback default state signature context
             window.currentPlasmaState = window.currentPlasmaState || 'Neutral';
             const palette = statesColors[window.currentPlasmaState];
+            const isDark = document.documentElement.classList.contains('dark');
 
             orbs.forEach((orb, index) => {
-                // Randomly generate coordinate markers across viewport frames
                 const randX = Math.floor(Math.random() * 75); 
                 const randY = Math.floor(Math.random() * 70);
-                const randSize = Math.floor(Math.random() * 180) + 220; // Drifts between 220px and 400px
-                const randOpacity = (Math.random() * 0.25) + (document.documentElement.classList.contains('dark') ? 0.08 : 0.25);
+                const randScale = (Math.random() * 0.7) + 0.8; 
+                const randOpacity = (Math.random() * 0.25) + (isDark ? 0.08 : 0.25);
 
-                orb.style.left = `${randX}%`;
-                orb.style.top = `${randY}%`;
-                orb.style.width = `${randSize}px`;
-                orb.style.height = `${randSize}px`;
                 orb.style.opacity = randOpacity;
                 orb.style.backgroundColor = palette[index % palette.length];
+                orb.style.transform = `translate3d(${randX}vw, ${randY}vh, 0) scale(${randScale})`;
             });
         }
 
         function triggerGeminiAmbientGlowEngine(targetState) {
             window.currentPlasmaState = targetState;
-            updateAmbientPlasmaCoordinates(); // Force immediate coordinate updates on action trigger
+            updateAmbientPlasmaCoordinates(); 
         }
 
         function prePopulateBaselineChartArrays() {
             const now = new Date();
             graphLabels = [];
             spamScoresData = [];
-            hamScoresData = []; // FIXED
+            hamScoresData = []; 
             
             for (let i = 6; i >= 0; i--) {
                 let pastTime = new Date(now.getTime() - i * 10 * 60 * 1000);
                 graphLabels.push(pastTime.toTimeString().split(' ')[0]);
                 spamScoresData.push(0);  
-                hamScoresData.push(0); // FIXED  
+                hamScoresData.push(0);   
             }
         }
 
         function initializePieDistributionChart(spamCount = 3, hamCount = 7) {
-            const ctx = document.getElementById('precisionPieChart').getContext('2d');
+            const canvasEl = document.getElementById('precisionPieChart');
+            if(!canvasEl) return;
+
+            const ctx = canvasEl.getContext('2d');
             const isDark = document.documentElement.classList.contains('dark');
             const borderLineColor = isDark ? '#0a0f1e' : '#ffffff';
             const legendTextColor = isDark ? '#94a3b8' : '#475569';
@@ -459,7 +462,8 @@
         function initializeSpeechRecognitionEngine() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                document.getElementById('micButton').style.display = 'none';
+                const micBtn = document.getElementById('micButton');
+                if(micBtn) micBtn.style.display = 'none';
                 return;
             }
             
@@ -471,12 +475,15 @@
             speechDictationInstance.onstart = () => {
                 isActivelyDictating = true;
                 const micBtn = document.getElementById('micButton');
-                micBtn.className = "p-2 rounded-xl bg-purple-500/20 border border-purple-500 text-purple-500 transition-all duration-200 flex items-center justify-center animate-pulse shadow-md shadow-purple-500/10";
+                if(micBtn) {
+                    micBtn.className = "p-2 rounded-xl bg-purple-500/20 border border-purple-500 text-purple-500 transition-all duration-200 flex items-center justify-center animate-pulse shadow-md shadow-purple-500/10";
+                }
             };
 
             speechDictationInstance.onresult = (event) => {
                 const speechResultText = event.results[event.results.length - 1][0].transcript;
                 const textarea = document.getElementById('messageInput');
+                if(!textarea) return;
                 
                 if (textarea.value.trim() === "") {
                     textarea.value = speechResultText.trim();
@@ -507,12 +514,15 @@
         function forceStopDictationEngine() {
             isActivelyDictating = false;
             const micBtn = document.getElementById('micButton');
-            micBtn.className = "p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-950/60 dark:hover:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-200 flex items-center justify-center shadow-inner";
+            if(micBtn) {
+                micBtn.className = "p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-950/60 dark:hover:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-200 flex items-center justify-center shadow-inner";
+            }
             if (speechDictationInstance) { try { speechDictationInstance.stop(); } catch(e){} }
         }
 
         function initScrollIntersectionEngine() {
             const elements = document.querySelectorAll('.reveal-on-scroll');
+            if(elements.length === 0) return;
             
             const observerOptions = {
                 root: null,
@@ -538,7 +548,10 @@
             });
         }
 
+        // MOBILE-AWARE POINTER CAPTURE MOUSE EVENTS
         document.addEventListener('mousemove', (e) => {
+            if (window.matchMedia("(pointer: coarse)").matches) return;
+
             const pupils = document.querySelectorAll('.eye-pupil');
             pupils.forEach(pupil => {
                 const eyeSocket = pupil.parentElement;
@@ -556,12 +569,15 @@
                 const moveX = Math.cos(angle) * maxDistance;
                 const moveY = Math.sin(angle) * maxDistance;
                 
-                pupil.style.transform = `translate(${moveX}px, ${moveY}px) rotate(45deg)`;
+                pupil.style.transform = `translate3d(${moveX}px, ${moveY}px, 0) rotate(45deg)`;
             });
         });
 
         function initializePerformanceChart() {
-            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const canvasEl = document.getElementById('performanceChart');
+            if(!canvasEl) return;
+
+            const ctx = canvasEl.getContext('2d');
             const isDark = document.documentElement.classList.contains('dark');
             const gridColor = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.05)';
             const textColor = isDark ? '#64748b' : '#475569';
@@ -586,7 +602,7 @@
                             label: 'Ham Verification Score (%)',
                             borderColor: '#10b981',
                             backgroundColor: 'rgba(16, 185, 129, 0.01)',
-                            data: hamScoresData, // FIXED
+                            data: hamScoresData, 
                             borderWidth: 2.5,
                             tension: 0.45,   
                             fill: false,
@@ -631,6 +647,7 @@
         }
 
         function updateChartData(newSpam, newHam) {
+            if(!chartInstance) return;
             const now = new Date();
             const timeString = now.toTimeString().split(' ')[0];
 
@@ -650,16 +667,24 @@
             const moon = document.getElementById('moonIcon');
 
             if (htmlNode.classList.contains('dark')) {
-                htmlNode.classList.remove('dark'); sun.classList.remove('hidden'); moon.classList.add('hidden');
+                htmlNode.classList.remove('dark'); 
+                if(sun) sun.classList.remove('hidden'); 
+                if(moon) moon.classList.add('hidden');
             } else {
-                htmlNode.classList.add('dark'); sun.classList.add('hidden'); moon.classList.remove('hidden');
+                htmlNode.classList.add('dark'); 
+                if(sun) sun.classList.add('hidden'); 
+                if(moon) moon.classList.remove('hidden');
             }
+            
             if(chartInstance) { chartInstance.destroy(); initializePerformanceChart(); }
             if(precisionPieChartInstance) { initializePieDistributionChart(); }
         }
 
         async function executeInference() {
-            const text = document.getElementById('messageInput').value;
+            const inputField = document.getElementById('messageInput');
+            if(!inputField) return;
+
+            const text = inputField.value;
             if(!text.trim()) return alert("Payload input buffer empty.");
 
             triggerGeminiAmbientGlowEngine('Processing');
@@ -682,34 +707,39 @@
                     const leftEye = document.getElementById('leftDioramaEye');
                     const rightEye = document.getElementById('rightDioramaEye');
 
-                    setTimeout(() => {
+                    if(card) {
                         card.classList.remove('hidden');
-                        setTimeout(() => { card.classList.remove('scale-95', 'opacity-0'); card.classList.add('scale-100', 'opacity-100'); }, 50);
+                        requestAnimationFrame(() => {
+                            card.classList.remove('scale-95', 'opacity-0'); 
+                            card.classList.add('scale-100', 'opacity-100');
+                        });
+                    }
 
-                        labelSpan.innerText = data.classification;
-                        document.getElementById('outputConfidence').innerText = data.confidence;
-                        actionSpan.innerText = data.action;
+                    if(labelSpan) labelSpan.innerText = data.classification;
+                    if(document.getElementById('outputConfidence')) document.getElementById('outputConfidence').innerText = data.confidence;
+                    if(actionSpan) actionSpan.innerText = data.action;
 
-                        if(data.classification === 'Spam') {
-                            card.className = "p-6 rounded-3xl border border-rose-500/40 bg-rose-500/5 transition-all duration-500 transform space-y-6";
-                            labelSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
-                            actionSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
-                            leftEye.innerText = "—"; rightEye.innerText = "—";
-                            
-                            triggerGeminiAmbientGlowEngine('Spam');
-                        } else {
-                            card.className = "p-6 rounded-3xl border border-emerald-500/40 bg-emerald-500/5 transition-all duration-500 transform space-y-6";
-                            labelSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
-                            actionSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
-                            leftEye.innerText = "^"; rightEye.innerText = "^";
-                            
-                            triggerGeminiAmbientGlowEngine('Ham');
-                        }
+                    if(data.classification === 'Spam') {
+                        if(card) card.className = "p-6 rounded-3xl border border-rose-500/40 bg-rose-500/5 transition-all duration-500 transform space-y-6";
+                        if(labelSpan) labelSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
+                        if(actionSpan) actionSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
+                        if(leftEye) leftEye.innerText = "—"; if(rightEye) rightEye.innerText = "—";
+                        
+                        triggerGeminiAmbientGlowEngine('Spam');
+                    } else {
+                        if(card) card.className = "p-6 rounded-3xl border border-emerald-500/40 bg-emerald-500/5 transition-all duration-500 transform space-y-6";
+                        if(labelSpan) labelSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
+                        if(actionSpan) actionSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
+                        if(leftEye) leftEye.innerText = "^"; if(rightEye) rightEye.innerText = "^";
+                        
+                        triggerGeminiAmbientGlowEngine('Ham');
+                    }
 
-                        document.getElementById('metricCaps').innerText = data.caps_ratio + "%";
-                        document.getElementById('metricPunctuation').innerText = data.punctuation_score + "%";
+                    if(document.getElementById('metricCaps')) document.getElementById('metricCaps').innerText = data.caps_ratio + "%";
+                    if(document.getElementById('metricPunctuation')) document.getElementById('metricPunctuation').innerText = data.punctuation_score + "%";
 
-                        const urlField = document.getElementById('metricUrl');
+                    const urlField = document.getElementById('metricUrl');
+                    if(urlField) {
                         if(data.url_threat > 0) {
                             urlField.innerText = "CRITICAL / Link Flagged";
                             urlField.className = "font-mono font-bold text-rose-500 animate-pulse";
@@ -717,15 +747,16 @@
                             urlField.innerText = "Passed / Secure";
                             urlField.className = "font-mono font-bold text-emerald-500";
                         }
+                    }
 
-                        updateChartData(data.spam_score, data.ham_score);
-                        refreshLogs();
-                        
-                        document.getElementById('xai-matrix-panel').classList.add('hidden');
-                    }, 650); 
+                    updateChartData(data.spam_score, data.ham_score);
+                    refreshLogs();
+                    
+                    const xaiPanel = document.getElementById('xai-matrix-panel');
+                    if(xaiPanel) xaiPanel.classList.add('hidden');
                 }
             } catch (err) { 
-                console.error("Exception processing network inference: ", err);
+                print("Exception processing network inference: ", err);
                 triggerGeminiAmbientGlowEngine('Neutral');
             }
         }
@@ -733,6 +764,8 @@
         function scrollToExplanationPanel() {
             const container = document.getElementById('tokenBadgeContainer');
             const panel = document.getElementById('xai-matrix-panel');
+            if(!container || !panel) return;
+
             container.innerHTML = ''; 
 
             if(!activePayloadTokensCache || activePayloadTokensCache.length === 0) {
@@ -782,7 +815,8 @@
                 const data = await response.json();
                 alert(data.message);
                 if(data.status === 'success') {
-                    document.getElementById('accuracyBadge').innerText = data.new_accuracy + "%";
+                    const accuracyBadge = document.getElementById('accuracyBadge');
+                    if(accuracyBadge) accuracyBadge.innerText = data.new_accuracy + "%";
                 }
             } catch(e) { console.error("Retraining process exception: ", e); }
         }
@@ -792,6 +826,8 @@
                 const response = await fetch('/logs');
                 const logs = await response.json();
                 const container = document.getElementById('logsContainer');
+                if(!container) return;
+
                 container.innerHTML = '';
 
                 if(logs.length === 0) {
@@ -832,15 +868,16 @@
             } catch (err) { console.error("Logs update loop failed: ", err); }
         }
 
-        // CORRECTED ORB MOTOR COORD LOOP ANCHOR LOCATION
         function toggleChatbotCanvasDrawer() {
             const drawer = document.getElementById('chatbot-drawer');
+            if(!drawer) return;
+
             if(drawer.classList.contains('hidden')) {
                 drawer.classList.remove('hidden');
-                setTimeout(() => {
+                requestAnimationFrame(() => {
                     drawer.classList.remove('scale-95', 'opacity-0');
                     drawer.classList.add('scale-100', 'opacity-100');
-                }, 10);
+                });
             } else {
                 drawer.classList.remove('scale-100', 'opacity-100');
                 drawer.classList.add('scale-95', 'opacity-0');
@@ -848,35 +885,41 @@
             }
         }
 
-        // FIXED: Replaced explicit onclick binding with event-delegation form submission logic to enable button clicks and 'Enter' press simultaneously.
+        // IMPROVED EVENT MANAGEMENT LOOP FOR ASSIGNED TERMINAL COMPANION INPUTS
         function initChatbotSubmissionEngine() {
             const form = document.getElementById('chatbotSubmitForm');
-            const input = document.getElementById('botMessageInput');
-
-            if (!form || !input) return;
+            if (!form) return;
 
             form.addEventListener('submit', function(e) {
-                e.preventDefault(); // Prevents standard browser form refresh matrix interruption
-                dispatchChatbotPayloadServer(input.value.trim());
-                input.value = ''; // Flushes buffer post-submission
+                e.preventDefault(); 
+                dispatchChatbotPayloadServer();
             });
         }
 
         async function dispatchChatbotPayloadServer(userMsg) {
-            if(!userMsg) return;
+            // Evaluates fallback criteria if invocation occurs with missing custom string parameters
+            if (!userMsg || typeof userMsg !== 'string') {
+                const input = document.getElementById('botMessageInput');
+                if (input) userMsg = input.value.trim();
+            }
+            
+            if (!userMsg) return;
             
             const msgBox = document.getElementById('chat-messages-box');
+            if (!msgBox) return;
             
-            // Renders immediate user echo badge stream
             msgBox.innerHTML += `
                 <div class="p-3 bg-slate-900 border border-slate-800 text-slate-300 max-w-[85%] ml-auto leading-relaxed rounded-2xl rounded-tr-none animate-slide-up">
-                    > ${userMsg}
+                    &gt; ${userMsg}
                 </div>
             `;
+            
+            const inputField = document.getElementById('botMessageInput');
+            if (inputField) inputField.value = '';
+            
             msgBox.scrollTop = msgBox.scrollHeight;
 
             try {
-                // Connects backend interface channel logic block
                 const response = await fetch('/bot_chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -884,14 +927,21 @@
                 });
                 const data = await response.json();
                 
-                // Renders backend companion logic response packet stream
                 msgBox.innerHTML += `
                     <div class="p-3 bg-purple-950/20 border border-purple-800/30 text-purple-400 max-w-[85%] leading-relaxed rounded-2xl rounded-tl-none animate-slide-up">
                         [COMPANION]: ${data.response}
                     </div>
                 `;
                 msgBox.scrollTop = msgBox.scrollHeight;
-            } catch(e) { console.error("Chat API node down: ", e); }
+            } catch(e) { 
+                console.error("Chat API node down: ", e); 
+                msgBox.innerHTML += `
+                    <div class="p-3 bg-rose-950/20 border border-rose-800/30 text-rose-400 max-w-[85%] leading-relaxed rounded-2xl rounded-tl-none text-xs">
+                        [SYSTEM ERROR]: Could not reach routing node /bot_chat. Ensure your server is running.
+                    </div>
+                `;
+                msgBox.scrollTop = msgBox.scrollHeight;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -900,15 +950,11 @@
             refreshLogs();
             initScrollIntersectionEngine();
             initializeSpeechRecognitionEngine();
-            
-            // FIXED: Connected submission interface motor anchor point location matrix node
             initChatbotSubmissionEngine();
 
-            // Lock active plasma movement interval loop (Cycles coordinates seamlessly every 4.2 seconds)
             updateAmbientPlasmaCoordinates();
             setInterval(updateAmbientPlasmaCoordinates, 4200);
         });
     </script>
 </body>
 </html>
-
