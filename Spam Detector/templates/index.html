@@ -62,6 +62,15 @@
             left: 0;
         }
         .dark .glow-orb-element { filter: blur(120px); opacity: 0.28; mix-blend-mode: plus-lighter; }
+
+        /* LIQUID DROP RADIUS TRANSITION ENGINE */
+        html {
+            transition: clip-path 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            clip-path: circle(100% at center);
+        }
+        html.clipping-active {
+            clip-path: circle(0% at var(--drop-x, 50%) var(--drop-y, 50%));
+        }
     </style>
 </head>
 <body class="bg-white text-slate-900 dark:bg-[#070b19] dark:text-slate-100 min-h-screen overflow-x-hidden relative">
@@ -102,7 +111,7 @@
                     <span class="text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Node: Active</span>
                 </div>
 
-                <button onclick="toggleThemeEngine()" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 text-slate-700 dark:text-slate-300 transition-all duration-200">
+                <button onclick="toggleThemeEngine(event)" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 text-slate-700 dark:text-slate-300 transition-all duration-200">
                     <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path></svg>
                     <svg id="moonIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                 </button>
@@ -661,10 +670,30 @@
             chartInstance.update();
         }
 
-        function toggleThemeEngine() {
+        // FULLY INTEGRATED LIQUID DROP RIPPLE ENGINE
+        function toggleThemeEngine(event) {
             const htmlNode = document.documentElement;
             const sun = document.getElementById('sunIcon');
             const moon = document.getElementById('moonIcon');
+
+            let clickX = window.innerWidth / 2; 
+            let clickY = 40; 
+
+            if (event && (event.clientX || (event.touches && event.touches[0]))) {
+                const clientX = event.clientX || event.touches[0].clientX;
+                const clientY = event.clientY || event.touches[0].clientY;
+                clickX = clientX;
+                clickY = clientY;
+            } else if (window.event) {
+                clickX = window.event.clientX || clickX;
+                clickY = window.event.clientY || clickY;
+            }
+
+            htmlNode.style.setProperty('--drop-x', `${clickX}px`);
+            htmlNode.style.setProperty('--drop-y', `${clickY}px`);
+
+            htmlNode.classList.add('clipping-active');
+            htmlNode.offsetHeight; // Forces DOM layout reflow calculation
 
             if (htmlNode.classList.contains('dark')) {
                 htmlNode.classList.remove('dark'); 
@@ -678,6 +707,10 @@
             
             if(chartInstance) { chartInstance.destroy(); initializePerformanceChart(); }
             if(precisionPieChartInstance) { initializePieDistributionChart(); }
+
+            requestAnimationFrame(() => {
+                htmlNode.classList.remove('clipping-active');
+            });
         }
 
         async function executeInference() {
@@ -756,7 +789,7 @@
                     if(xaiPanel) xaiPanel.classList.add('hidden');
                 }
             } catch (err) { 
-                print("Exception processing network inference: ", err);
+                console.error("Exception processing network inference: ", err);
                 triggerGeminiAmbientGlowEngine('Neutral');
             }
         }
@@ -885,7 +918,6 @@
             }
         }
 
-        // IMPROVED EVENT MANAGEMENT LOOP FOR ASSIGNED TERMINAL COMPANION INPUTS
         function initChatbotSubmissionEngine() {
             const form = document.getElementById('chatbotSubmitForm');
             if (!form) return;
@@ -896,8 +928,8 @@
             });
         }
 
+        // FULLY OPTIMIZED STREAMING CADENCE TYPEWRITER RE-RENDER LOOP
         async function dispatchChatbotPayloadServer(userMsg) {
-            // Evaluates fallback criteria if invocation occurs with missing custom string parameters
             if (!userMsg || typeof userMsg !== 'string') {
                 const input = document.getElementById('botMessageInput');
                 if (input) userMsg = input.value.trim();
@@ -927,12 +959,37 @@
                 });
                 const data = await response.json();
                 
+                // Establish unique container allocation identifiers
+                const uniqueMsgId = 'bot-msg-' + Date.now();
+                
                 msgBox.innerHTML += `
-                    <div class="p-3 bg-purple-950/20 border border-purple-800/30 text-purple-400 max-w-[85%] leading-relaxed rounded-2xl rounded-tl-none animate-slide-up">
-                        [COMPANION]: ${data.response}
+                    <div id="${uniqueMsgId}" class="p-3 bg-purple-950/20 border border-purple-800/30 text-purple-400 max-w-[85%] leading-relaxed rounded-2xl rounded-tl-none animate-slide-up">
+                        [COMPANION]: 
                     </div>
                 `;
                 msgBox.scrollTop = msgBox.scrollHeight;
+
+                const targetBubble = document.getElementById(uniqueMsgId);
+                const fullResponseText = data.response;
+                
+                // Segments standard string array blocks to parse clean spacing patterns
+                const wordsArray = fullResponseText.split(' ');
+                let currentWordIndex = 0;
+                let displayedContent = "[COMPANION]: ";
+
+                function streamTypewriterLoop() {
+                    if (currentWordIndex < wordsArray.length) {
+                        displayedContent += wordsArray[currentWordIndex] + " ";
+                        targetBubble.innerText = displayedContent;
+                        
+                        msgBox.scrollTop = msgBox.scrollHeight;
+                        currentWordIndex++;
+                        setTimeout(streamTypewriterLoop, 40);
+                    }
+                }
+                
+                streamTypewriterLoop();
+
             } catch(e) { 
                 console.error("Chat API node down: ", e); 
                 msgBox.innerHTML += `

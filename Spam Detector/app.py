@@ -8,9 +8,18 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 
+# Official Google GenAI SDK integration components
+from google import genai
+from google.genai import types
+
 app = Flask(__name__)
 DB_NAME = "message_logs.db"
 MODEL_BUNDLE_PATH = "spam_classifier_system.pkl"
+
+# Initialize the Gemini client configuration engine
+# Note: This automatically securely pulls the private GEMINI_API_KEY environment variable.
+# New explicitly authenticated initialization line
+client = genai.Client()
 
 def init_db():
     with sqlite3.connect(DB_NAME) as conn:
@@ -210,28 +219,51 @@ def get_logs():
         rows = cursor.fetchall()
     return jsonify([dict(row) for row in rows])
 
-# NEW INTERACTIVE COMPANION CHATBOT GATEWAY ROUTE
+# RE-ENGINEERED COMPANION CHATBOT GATEWAY ROUTE (POWERED BY GEMINI CORE LLM)
 @app.route('/bot_chat', methods=['POST'])
 def bot_chat():
-    data = request.get_json()
-    user_message = data.get('message', '').strip().lower()
-    
-    if not user_message:
-        return jsonify({'response': 'My input processing buffers appear to be empty. What text payload shall we analyze?'})
+    try:
+        data = request.get_json()
+        user_message = data.get('message', '').strip()
         
-    # Context-aware documentation lookup strings
-    if 'accuracy' in user_message or 'score' in user_message:
-        return jsonify({'response': 'The security infrastructure accuracy matrix is currently processing telemetry variables live at the top of your console panel.'})
-    elif 'spam' in user_message or 'phishing' in user_message:
-        return jsonify({'response': 'Paste any suspicious text payload into the primary terminal block. De_SpamAI will decode capitalization ratios, link structural traps, and display feature logs.'})
-    elif 'retrain' in user_message or 'update' in user_message:
-        return jsonify({'response': 'If the core ML pipeline maps an entry incorrectly, toggle the manual feedback overrides (👍/👎). Then trigger "Retrain Model Live" to run the Scikit-Learn refit sequence.'})
-    elif 'xai' in user_message or 'explain' in user_message:
-        return jsonify({'response': 'Click the "Explain AI Inference" button on any generated report. The viewport will glide to the bottom matrix cloud to reveal individual token feature log-probability weights.'})
-    elif 'lucky' in user_message or 'gupta' in user_message or 'developer' in user_message:
-        return jsonify({'response': 'De_SpamAI was designed and engineered by Lucky Gupta, a CSE student deploying full-stack machine learning architectures.'})
-    else:
-        return jsonify({'response': 'De_SpamAI active node standing by. Type keywords like "retrain", "spam", "XAI", or "accuracy" to query my documentation registers.'})
+        if not user_message:
+            return jsonify({'response': 'My input processing buffers appear to be empty. What text payload shall we analyze?'})
+            
+        # Context system instructions mapping telemetry constraints and persona frameworks
+        system_instruction = f"""
+        You are De_SpamAI Companion v2, an advanced, context-aware cybersecurity AI assistant integrated into a Spam Analytics Suite dashboard.
+        Your goal is to answer queries with technical clarity, wit, and high precision.
+        
+        Context parameters regarding this application environment:
+        1. Current Live Engine Training Accuracy: {engine_accuracy}%
+        2. Backend Stack: Python, Flask, Scikit-Learn (TF-IDF Vectorizer + Multinomial Naive Bayes classification), SQLite3 database ledger.
+        
+        You specialize in explaining:
+        - Explainable AI (XAI): How word tokens map log-probability deltas (Spam log probability minus Ham log probability) to generate visual badge weights.
+        - Adaptive Retraining: How clicking feedback buttons (👍/👎) logs corrections to the database, allowing the Scikit-Learn pipeline to re-fit live.
+        - Text Heuristics: Capitalization frequencies, punctuation densities, and URL risk strings.
+        
+        Lock in your tone: Professional hacker-terminal, concise, highly informative, scannable markdown formatting. Keep answers short and relevant to the dashboard's capabilities.
+        """
+
+        # Generate intelligent contextual content using gemini-2.5-flash
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=user_message,
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                temperature=0.6
+            )
+        )
+
+        return jsonify({'status': 'success', 'response': response.text})
+
+    except Exception as err:
+        print(f"Exception routed during Gemini inference pipeline run: {err}")
+        return jsonify({
+            'status': 'error',
+            'response': '[INTERNAL LOGIC FAULT]: Critical exception thrown in Gemini gateway node channel.'
+        }), 500
 
 if __name__ == '__main__':
     init_db()
