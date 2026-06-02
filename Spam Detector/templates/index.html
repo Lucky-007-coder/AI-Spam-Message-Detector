@@ -71,6 +71,16 @@
         html.clipping-active {
             clip-path: circle(0% at var(--drop-x, 50%) var(--drop-y, 50%));
         }
+
+        /* DICTATION WAVEFORM WAVE BAR KEYFRAMES */
+        @keyframes waveformPulse {
+            0%, 100% { transform: scaleY(0.3); }
+            50% { transform: scaleY(1.2); }
+        }
+        .wave-bar-element {
+            animation: waveformPulse 1s ease-in-out infinite;
+            transform-origin: center;
+        }
     </style>
 </head>
 <body class="bg-white text-slate-900 dark:bg-[#070b19] dark:text-slate-100 min-h-screen overflow-x-hidden relative">
@@ -84,7 +94,7 @@
     <nav class="fixed top-0 left-0 w-full z-50 px-6 py-4 transition-all duration-300 bg-white/70 dark:bg-[#070b19]/70 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/40">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
             
-            <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); triggerTactileClickAudio(800, 0.05);">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold tracking-tighter text-sm shadow-md shadow-indigo-500/20">
                     D⚡
                 </div>
@@ -95,11 +105,11 @@
             </div>
 
             <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-400">
-                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="hover:text-indigo-500 transition duration-150 font-bold text-indigo-500 dark:text-indigo-400">Home</button>
-                <button onclick="document.getElementById('app-main').scrollIntoView({ behavior: 'smooth' })" class="hover:text-indigo-500 transition duration-150">Terminal Console</button>
-                <button onclick="if(document.getElementById('xai-matrix-panel').classList.contains('hidden')) { scrollToExplanationPanel(); } else { document.getElementById('xai-matrix-panel').scrollIntoView({ behavior: 'smooth' }); }" class="hover:text-indigo-500 transition duration-150">XAI Decryption</button>
-                <button onclick="document.getElementById('logsContainer').scrollIntoView({ behavior: 'smooth', block: 'center' })" class="hover:text-indigo-500 transition duration-150">Historical Ledger</button>
-                <button onclick="document.getElementById('about-us-panel').scrollIntoView({ behavior: 'smooth' })" class="hover:text-indigo-500 transition duration-150">About Us</button>
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'}); triggerTactileClickAudio(500, 0.04);" class="hover:text-indigo-500 transition duration-150 font-bold text-indigo-500 dark:text-indigo-400">Home</button>
+                <button onclick="document.getElementById('app-main').scrollIntoView({ behavior: 'smooth' }); triggerTactileClickAudio(500, 0.04);" class="hover:text-indigo-500 transition duration-150">Terminal Console</button>
+                <button onclick="if(document.getElementById('xai-matrix-panel').classList.contains('hidden')) { scrollToExplanationPanel(); } else { document.getElementById('xai-matrix-panel').scrollIntoView({ behavior: 'smooth' }); }; triggerTactileClickAudio(500, 0.04);" class="hover:text-indigo-500 transition duration-150">XAI Decryption</button>
+                <button onclick="document.getElementById('logsContainer').scrollIntoView({ behavior: 'smooth', block: 'center' }); triggerTactileClickAudio(500, 0.04);" class="hover:text-indigo-500 transition duration-150">Historical Ledger</button>
+                <button onclick="document.getElementById('about-us-panel').scrollIntoView({ behavior: 'smooth' }); triggerTactileClickAudio(500, 0.04);" class="hover:text-indigo-500 transition duration-150">About Us</button>
             </div>
 
             <div class="flex items-center gap-4">
@@ -131,7 +141,7 @@
                 <span class="inline-block animate-slide-left-brand delay-300 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 drop-shadow-[0_2px_10px_rgba(165,180,252,0.15)]">De-SpamAI</span>
             </h1>
             
-            <button onclick="document.getElementById('app-main').scrollIntoView({ behavior: 'smooth' })" 
+            <button onclick="document.getElementById('app-main').scrollIntoView({ behavior: 'smooth' }); triggerTactileClickAudio(600, 0.1);" 
                     class="mt-4 px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-600/20 transition-all duration-300 transform hover:-translate-y-0.5 animate-slide-up delay-500">
                 Launch Dashboard Console
             </button>
@@ -169,9 +179,22 @@
                         </button>
                     </div>
                     
-                    <textarea id="messageInput" 
-                              class="w-full flex-grow h-[180px] bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-200 resize-none dark:text-white"
-                              placeholder="Paste payload or click the microphone button to dictate message text live..."></textarea>
+                    <div class="w-full flex-grow h-[180px] relative">
+                        <textarea id="messageInput" 
+                                  class="w-full h-full bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-200 resize-none dark:text-white"
+                                  placeholder="Paste payload or click the microphone button to dictate message text live..."></textarea>
+                        
+                        <div id="dictationWaveformOverlay" class="absolute inset-0 bg-slate-50/90 dark:bg-slate-950/90 rounded-2xl flex flex-col items-center justify-center space-y-3 hidden transition-all duration-300 pointer-events-none">
+                            <div class="flex items-center justify-center gap-1.5 h-10">
+                                <div class="wave-bar-element w-1 h-6 rounded-full bg-purple-500" style="animation-delay: 0.1s"></div>
+                                <div class="wave-bar-element w-1 h-10 rounded-full bg-indigo-500" style="animation-delay: 0.3s"></div>
+                                <div class="wave-bar-element w-1 h-7 rounded-full bg-purple-400" style="animation-delay: 0.5s"></div>
+                                <div class="wave-bar-element w-1 h-9 rounded-full bg-blue-500" style="animation-delay: 0.2s"></div>
+                                <div class="wave-bar-element w-1 h-5 rounded-full bg-indigo-400" style="animation-delay: 0.4s"></div>
+                            </div>
+                            <span class="text-xs font-mono tracking-wider font-bold text-purple-400 animate-pulse uppercase">De_SpamAI Listening Matrix...</span>
+                        </div>
+                    </div>
                 </div>
                 <button onclick="executeInference()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition duration-200 shadow-md flex-shrink-0">
                     Run Model Verification
@@ -252,7 +275,7 @@
                 <div class="md:col-span-2 glassmorphism light-mode-card p-6 rounded-3xl flex flex-col min-h-[300px]">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Historical Ledger Logs</h3>
-                        <button onclick="refreshLogs()" class="text-xs text-indigo-500 font-medium hover:underline">Sync Logs</button>
+                        <button onclick="refreshLogs(); triggerTactileClickAudio(700, 0.05);" class="text-xs text-indigo-500 font-medium hover:underline">Sync Logs</button>
                     </div>
                     <div id="logsContainer" class="space-y-3 overflow-y-auto max-h-[220px] pr-1 flex-grow"></div>
                 </div>
@@ -268,17 +291,17 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            <div class="glassmorphism light-mode-card p-6 rounded-3xl space-y-4">
-                <h3 class="text-lg font-bold tracking-tight">How to Interpret Vectors</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Our TF-IDF Vectorizer strips common English stopwords and calculates weights using mathematical log-probability differences.</p>
-                <div class="space-y-3 pt-2 text-xs">
-                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-rose-500 shadow-md shadow-rose-500/50"></span> <span class="text-slate-400 font-medium">High Positive Weight (&gt; 0): High Spam Danger</span></div>
-                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-slate-400"></span> <span class="text-slate-400 font-medium">Neutral Score (~ 0): Balanced / Common Word</span></div>
-                    <div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-emerald-500 shadow-md shadow-emerald-500/50"></span> <span class="text-slate-400 font-medium">Negative Weight (&lt; 0): Strongly Correlated with Ham</span></div>
+            <div class="glassmorphism light-mode-card p-6 rounded-3xl space-y-4 flex flex-col justify-between h-full min-h-[320px]">
+                <div>
+                    <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deceptive Word Cloud Matrix</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Live vocabulary vectors scaling proportionally to mathematical spam severity weights inside text loops.</p>
+                </div>
+                <div class="w-full flex-grow h-[200px] border border-slate-200/40 dark:border-slate-800/40 bg-white/40 dark:bg-slate-950/30 rounded-2xl overflow-hidden relative flex items-center justify-center">
+                    <canvas id="deceptiveWordCloudCanvas" class="w-full h-full max-h-[190px]"></canvas>
                 </div>
             </div>
 
-            <div class="lg:col-span-2 glassmorphism light-mode-card p-8 rounded-3xl min-h-[280px] flex flex-col justify-between">
+            <div class="lg:col-span-2 glassmorphism light-mode-card p-8 rounded-3xl min-h-[320px] flex flex-col justify-between">
                 <div>
                     <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-6">Payload Token Tokenization Cloud Matrix</h3>
                     <div id="tokenBadgeContainer" class="flex flex-wrap gap-3 items-center"></div>
@@ -305,7 +328,7 @@
             <div id="about-card-2" class="glassmorphism light-mode-card p-6 rounded-3xl space-y-4 transform transition duration-300 hover:-translate-y-1 reveal-on-scroll">
                 <div class="w-10 h-10 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-lg">🛡️</div>
                 <h3 class="text-xl font-bold tracking-tight">How This App Helps</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Our app acts as an explicit shield against these social engineering attacks. By executing localized vector calculations on unstructured text payloads, it instantly flags and Jordanizes malicious threats before they reach you.</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">Our app acts as an explicit shield against these social engineering attacks. By executing localized vector calculations on unstructured text payloads, it instantly flags threats before they reach you.</p>
             </div>
 
             <div id="about-card-3" class="glassmorphism light-mode-card p-6 rounded-3xl space-y-4 transform transition duration-300 hover:-translate-y-1 md:col-span-2 lg:col-span-1 reveal-on-scroll">
@@ -332,7 +355,7 @@
                     <span class="w-2 h-2 rounded-full bg-purple-400 shadow shadow-purple-400 animate-pulse"></span>
                     <span class="font-bold text-xs text-purple-400 tracking-wider uppercase">De_SpamAI_Companion_v2</span>
                 </div>
-                <button onclick="toggleChatbotCanvasDrawer()" class="text-slate-500 hover:text-purple-400 transition font-bold text-xs">✕</button>
+                <button onclick="toggleChatbotCanvasDrawer(); triggerTactileClickAudio(900, 0.03);" class="text-slate-500 hover:text-purple-400 transition font-bold text-xs">✕</button>
             </div>
 
             <div id="chat-messages-box" class="flex-grow p-4 overflow-y-auto space-y-4 font-sans text-xs text-slate-300">
@@ -351,7 +374,7 @@
             </form>
         </div>
 
-        <div onclick="toggleChatbotCanvasDrawer()" class="animate-float-droid cursor-pointer flex flex-col items-center group select-none">
+        <div onclick="toggleChatbotCanvasDrawer(); triggerTactileClickAudio(600, 0.05);" class="animate-float-droid cursor-pointer flex flex-col items-center group select-none">
             <div class="w-2 h-2 rounded-full bg-slate-100 dark:bg-slate-300 border border-slate-400/40 shadow-sm shadow-white"></div>
             <div class="w-1 h-2 bg-slate-200 dark:bg-slate-400"></div>
 
@@ -380,6 +403,35 @@
         let graphLabels = [];
         let spamScoresData = [];
         let hamScoresData = [];
+
+        // HAPTIC AND MECHANICAL SYNTHETIC AUDIO FEEDBACK MATRIX PARAMS
+        let hapticAudioEngineContext = null;
+
+        function triggerTactileClickAudio(pitchFrequency = 600, clickDuration = 0.05) {
+            // Send vibration parameters natively to mobile hardware if configured
+            if (navigator.vibrate) {
+                navigator.vibrate(12); 
+            }
+            try {
+                if (!hapticAudioEngineContext) {
+                    hapticAudioEngineContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const oscNode = hapticAudioEngineContext.createOscillator();
+                const gainNode = hapticAudioEngineContext.createGain();
+                
+                oscNode.type = 'sine';
+                oscNode.frequency.setValueAtTime(pitchFrequency, hapticAudioEngineContext.currentTime);
+                gainNode.gain.setValueAtTime(0.04, hapticAudioEngineContext.currentTime); // Low volume burst
+                
+                // Fast exponential fade out to mimic a clean hardware click
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, hapticAudioEngineContext.currentTime + clickDuration);
+                
+                oscNode.connect(gainNode);
+                gainNode.connect(hapticAudioEngineContext.destination);
+                oscNode.start();
+                oscNode.stop(hapticAudioEngineContext.currentTime + clickDuration);
+            } catch(e) { console.error("Tactile sound synth engine offline: ", e); }
+        }
 
         // PERFORMANCE-OPTIMIZED DYNAMIC ORB DISPLACEMENT MOTOR (HARDWARE GPU ACCELERATED)
         function updateAmbientPlasmaCoordinates() {
@@ -483,10 +535,14 @@
 
             speechDictationInstance.onstart = () => {
                 isActivelyDictating = true;
+                triggerTactileClickAudio(880, 0.15);
                 const micBtn = document.getElementById('micButton');
                 if(micBtn) {
                     micBtn.className = "p-2 rounded-xl bg-purple-500/20 border border-purple-500 text-purple-500 transition-all duration-200 flex items-center justify-center animate-pulse shadow-md shadow-purple-500/10";
                 }
+                // Show dynamic wave overlay block
+                const waveOverlay = document.getElementById('dictationWaveformOverlay');
+                if (waveOverlay) waveOverlay.classList.remove('hidden');
             };
 
             speechDictationInstance.onresult = (event) => {
@@ -499,6 +555,7 @@
                 } else {
                     textarea.value += " " + speechResultText.trim();
                 }
+                triggerTactileClickAudio(750, 0.03);
             };
 
             speechDictationInstance.onerror = (err) => {
@@ -521,11 +578,18 @@
         }
 
         function forceStopDictationEngine() {
+            if (isActivelyDictating) {
+                triggerTactileClickAudio(440, 0.2);
+            }
             isActivelyDictating = false;
             const micBtn = document.getElementById('micButton');
             if(micBtn) {
                 micBtn.className = "p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-950/60 dark:hover:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-200 flex items-center justify-center shadow-inner";
             }
+            // Remove the dynamic listening waveform canvas filter overlay
+            const waveOverlay = document.getElementById('dictationWaveformOverlay');
+            if (waveOverlay) waveOverlay.classList.add('hidden');
+            
             if (speechDictationInstance) { try { speechDictationInstance.stop(); } catch(e){} }
         }
 
@@ -655,6 +719,60 @@
             });
         }
 
+        // GENERATE CLOUD-BASED CLOUD MATRIX FROM XAI DATA (DECEPTIVE WORD CLOUD ENGINE)
+        function renderDeceptiveWordCloud(tokenData) {
+            const canvas = document.getElementById('deceptiveWordCloudCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            // Adjust resolution grids dynamically
+            const canvasWidth = canvas.parentElement.clientWidth;
+            canvas.width = canvasWidth;
+            canvas.height = 190;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (!tokenData || tokenData.length === 0) {
+                ctx.fillStyle = '#64748b';
+                ctx.font = '11px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('Awaiting live processing payload tags...', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            // Scatter words visually across the coordinate layout matrix
+            tokenData.forEach((token, index) => {
+                const isSpamWeight = token.weight > 0;
+                
+                // Normalize word size using conditional scale dimensions
+                const absoluteWeight = Math.abs(token.weight);
+                const calculatedFontSize = Math.min(Math.max(absoluteWeight * 14, 11), 26);
+                
+                ctx.font = `bold ${calculatedFontSize}px Plus Jakarta Sans`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Color allocation based on vector direction parameters
+                ctx.fillStyle = isSpamWeight ? `rgba(244, 63, 94, ${Math.min(0.4 + absoluteWeight, 1)})` : `rgba(16, 185, 129, ${Math.min(0.4 + absoluteWeight, 1)})`;
+                
+                // Layout math positions items across variable structural grids
+                const paddingSpace = 30;
+                let targetX = paddingSpace + (Math.random() * (canvas.width - paddingSpace * 2));
+                let targetY = paddingSpace + (Math.random() * (canvas.height - paddingSpace * 2));
+
+                // Basic grid tracking ensures the first items cluster towards center views
+                if (index === 0) {
+                    targetX = canvas.width / 2;
+                    targetY = canvas.height / 2;
+                } else if (index === 1) {
+                    targetX = canvas.width / 3;
+                    targetY = canvas.height / 2.3;
+                }
+                
+                ctx.fillText(token.word, targetX, targetY);
+            });
+        }
+
         function updateChartData(newSpam, newHam) {
             if(!chartInstance) return;
             const now = new Date();
@@ -672,10 +790,6 @@
 
         // FULLY INTEGRATED LIQUID DROP RIPPLE ENGINE
         function toggleThemeEngine(event) {
-            const htmlNode = document.documentElement;
-            const sun = document.getElementById('sunIcon');
-            const moon = document.getElementById('moonIcon');
-
             let clickX = window.innerWidth / 2; 
             let clickY = 40; 
 
@@ -688,6 +802,12 @@
                 clickX = window.event.clientX || clickX;
                 clickY = window.event.clientY || clickY;
             }
+
+            triggerTactileClickAudio(1100, 0.08); // High chime droplet sound trigger
+
+            const htmlNode = document.documentElement;
+            const sun = document.getElementById('sunIcon');
+            const moon = document.getElementById('moonIcon');
 
             htmlNode.style.setProperty('--drop-x', `${clickX}px`);
             htmlNode.style.setProperty('--drop-y', `${clickY}px`);
@@ -714,6 +834,7 @@
         }
 
         async function executeInference() {
+            triggerTactileClickAudio(620, 0.06);
             const inputField = document.getElementById('messageInput');
             if(!inputField) return;
 
@@ -734,6 +855,9 @@
                     currentActiveLogId = data.log_id; 
                     activePayloadTokensCache = data.tokens; 
                     
+                    // Trigger live visualization changes on canvas matrix
+                    renderDeceptiveWordCloud(data.tokens);
+
                     const card = document.getElementById('resultCard');
                     const labelSpan = document.getElementById('outputLabel');
                     const actionSpan = document.getElementById('outputAction');
@@ -753,6 +877,7 @@
                     if(actionSpan) actionSpan.innerText = data.action;
 
                     if(data.classification === 'Spam') {
+                        triggerTactileClickAudio(220, 0.25); // Heavy danger tone burst
                         if(card) card.className = "p-6 rounded-3xl border border-rose-500/40 bg-rose-500/5 transition-all duration-500 transform space-y-6";
                         if(labelSpan) labelSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
                         if(actionSpan) actionSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
@@ -760,6 +885,7 @@
                         
                         triggerGeminiAmbientGlowEngine('Spam');
                     } else {
+                        triggerTactileClickAudio(780, 0.12); // High secure affirmation validation chime
                         if(card) card.className = "p-6 rounded-3xl border border-emerald-500/40 bg-emerald-500/5 transition-all duration-500 transform space-y-6";
                         if(labelSpan) labelSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
                         if(actionSpan) actionSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
@@ -795,6 +921,7 @@
         }
 
         function scrollToExplanationPanel() {
+            triggerTactileClickAudio(680, 0.04);
             const container = document.getElementById('tokenBadgeContainer');
             const panel = document.getElementById('xai-matrix-panel');
             if(!container || !panel) return;
@@ -823,10 +950,15 @@
                 });
             }
             panel.classList.remove('hidden');
+            
+            // Re-render empty or updated cloud metrics parameters safely inside context layouts
+            renderDeceptiveWordCloud(activePayloadTokensCache);
+            
             panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         async function submitUserFeedback(votedLabel) {
+            triggerTactileClickAudio(700, 0.05);
             if(!currentActiveLogId) return alert("Analyze a text payload before submitting feedback.");
             try {
                 const response = await fetch('/feedback', {
@@ -843,6 +975,7 @@
         }
 
         async function triggerModelRetrain() {
+            triggerTactileClickAudio(400, 0.3); // Rebuild system initialization alert chime
             try {
                 const response = await fetch('/retrain', { method: 'POST' });
                 const data = await response.json();
@@ -930,6 +1063,7 @@
 
         // FULLY OPTIMIZED STREAMING CADENCE TYPEWRITER RE-RENDER LOOP
         async function dispatchChatbotPayloadServer(userMsg) {
+            triggerTactileClickAudio(650, 0.05);
             if (!userMsg || typeof userMsg !== 'string') {
                 const input = document.getElementById('botMessageInput');
                 if (input) userMsg = input.value.trim();
@@ -959,7 +1093,6 @@
                 });
                 const data = await response.json();
                 
-                // Establish unique container allocation identifiers
                 const uniqueMsgId = 'bot-msg-' + Date.now();
                 
                 msgBox.innerHTML += `
@@ -972,7 +1105,6 @@
                 const targetBubble = document.getElementById(uniqueMsgId);
                 const fullResponseText = data.response;
                 
-                // Segments standard string array blocks to parse clean spacing patterns
                 const wordsArray = fullResponseText.split(' ');
                 let currentWordIndex = 0;
                 let displayedContent = "[COMPANION]: ";
@@ -982,6 +1114,9 @@
                         displayedContent += wordsArray[currentWordIndex] + " ";
                         targetBubble.innerText = displayedContent;
                         
+                        // Add ticking micro click audio for typewriter feedback effects
+                        triggerTactileClickAudio(950, 0.01);
+
                         msgBox.scrollTop = msgBox.scrollHeight;
                         currentWordIndex++;
                         setTimeout(streamTypewriterLoop, 40);
@@ -1008,6 +1143,9 @@
             initScrollIntersectionEngine();
             initializeSpeechRecognitionEngine();
             initChatbotSubmissionEngine();
+
+            // Initialize empty placeholders for word clouds natively on view loads
+            renderDeceptiveWordCloud([]);
 
             updateAmbientPlasmaCoordinates();
             setInterval(updateAmbientPlasmaCoordinates, 4200);
