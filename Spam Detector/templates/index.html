@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>De_SpamAI // Advanced Analytics Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
@@ -81,6 +81,9 @@
             animation: waveformPulse 1s ease-in-out infinite;
             transform-origin: center;
         }
+
+        /* Radial Dial Arc Path Transitions */
+        .radial-dial-path { transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.4s ease; }
     </style>
 </head>
 <body class="bg-white text-slate-900 dark:bg-[#070b19] dark:text-slate-100 min-h-screen overflow-x-hidden relative">
@@ -112,14 +115,16 @@
                 <button onclick="document.getElementById('about-us-panel').scrollIntoView({ behavior: 'smooth' }); triggerTactileClickAudio(500, 0.04);" class="hover:text-indigo-500 transition duration-150">About Us</button>
             </div>
 
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 text-xs font-mono">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span class="text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Node: Active</span>
+                    <canvas id="navbarPingMiniCanvas" class="w-12 h-5 mr-1 pointer-events-none"></canvas>
+                    <span class="text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold text-[10px]">Latency: <span id="pingCounterValue" class="text-indigo-500">24ms</span></span>
                 </div>
+
+                <button id="systemAudioToggleBtn" onclick="toggleSystemAudioParam()" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 text-slate-700 dark:text-slate-300 transition duration-200" title="Toggle System Sounds">
+                    <svg id="audioOnIcon" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" /></svg>
+                    <svg id="audioOffIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75 19.5 12m0 0 2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6 4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" /></svg>
+                </button>
 
                 <button onclick="toggleThemeEngine(event)" class="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 text-slate-700 dark:text-slate-300 transition-all duration-200">
                     <svg id="sunIcon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z"></path></svg>
@@ -179,12 +184,22 @@
                         </button>
                     </div>
                     
-                    <div class="w-full flex-grow h-[180px] relative">
+                    <div class="w-full flex-grow h-[200px] relative">
                         <textarea id="messageInput" 
-                                  class="w-full h-full bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-200 resize-none dark:text-white"
+                                  class="w-full h-full bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 pr-12 pb-10 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-200 resize-none dark:text-white"
                                   placeholder="Paste payload or click the microphone button to dictate message text live..."></textarea>
                         
-                        <div id="dictationWaveformOverlay" class="absolute inset-0 bg-slate-50/90 dark:bg-slate-950/90 rounded-2xl flex flex-col items-center justify-center space-y-3 hidden transition-all duration-300 pointer-events-none">
+                        <div class="absolute bottom-3 right-3 flex items-center gap-2 text-[10px] font-mono text-slate-400 select-none bg-white/80 dark:bg-slate-950/80 backdrop-blur px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-800/60 z-20 shadow-sm">
+                            <span id="payloadByteCounter">0 Bytes</span>
+                            <span class="text-slate-300 dark:text-slate-700">|</span>
+                            <button onclick="document.getElementById('messageInput').value = ''; updateByteMetricsCounter(); triggerTactileClickAudio(350, 0.08);" class="text-slate-400 hover:text-rose-500 transition-colors duration-150" title="Flush Payload Cache">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div id="dictationWaveformOverlay" class="absolute inset-0 bg-slate-50/90 dark:bg-slate-950/90 rounded-2xl flex flex-col items-center justify-center space-y-3 hidden transition-all duration-300 pointer-events-none z-30">
                             <div class="flex items-center justify-center gap-1.5 h-10">
                                 <div class="wave-bar-element w-1 h-6 rounded-full bg-purple-500" style="animation-delay: 0.1s"></div>
                                 <div class="wave-bar-element w-1 h-10 rounded-full bg-indigo-500" style="animation-delay: 0.3s"></div>
@@ -195,8 +210,20 @@
                             <span class="text-xs font-mono tracking-wider font-bold text-purple-400 animate-pulse uppercase">De_SpamAI Listening Matrix...</span>
                         </div>
                     </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                        <div class="relative">
+                            <input type="file" id="bulkFileInput" accept=".txt,.csv" class="hidden">
+                            <button onclick="document.getElementById('bulkFileInput').click()" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-[10px] font-mono font-bold border border-slate-200 dark:border-slate-800 text-indigo-500 transition flex items-center gap-1" title="Upload Raw Text Payload File">
+                                <span>📂 File</span>
+                            </button>
+                        </div>
+                        <span class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider ml-1">Presets:</span>
+                        <button onclick="injectPresetStringIntoPayload('URGENT: Your bank account has been suspended due to risk factors! Access secure-telemetry-link.com to safely bypass account lockout.');" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-[10px] font-mono border border-slate-200 dark:border-slate-800 text-rose-500 transition">⚠️ Phishing</button>
+                        <button onclick="injectPresetStringIntoPayload('Hey, are we still meeting near the terminal development lab around 4 PM to verify the full stack pipeline code blocks? Let me know.');" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 text-[10px] font-mono border border-slate-200 dark:border-slate-800 text-emerald-500 transition">✅ Clean</button>
+                    </div>
                 </div>
-                <button onclick="executeInference()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition duration-200 shadow-md flex-shrink-0">
+                <button onclick="executeInference()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition duration-200 shadow-md flex-shrink-0 mt-2">
                     Run Model Verification
                 </button>
             </div>
@@ -227,15 +254,25 @@
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="bg-white/40 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl">
+                        <div class="bg-white/40 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex flex-col justify-center">
                             <span class="block text-xs text-slate-400 font-medium mb-1">Target Assessment</span>
                             <span id="outputLabel" class="text-3xl font-extrabold tracking-tight"></span>
                         </div>
-                        <div class="bg-white/40 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl">
-                            <span class="block text-xs text-slate-400 font-medium mb-1">Inference Confidence</span>
-                            <span id="outputConfidence" class="text-3xl font-extrabold tracking-tight text-slate-800 dark:text-white"></span>
+                        
+                        <div class="bg-white/40 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-4 rounded-2xl flex items-center justify-between gap-2 relative">
+                            <div class="flex flex-col">
+                                <span class="block text-xs text-slate-400 font-medium mb-0.5">Inference Confidence</span>
+                                <span id="outputConfidenceText" class="text-2xl font-extrabold tracking-tight text-slate-800 dark:text-white font-mono">0%</span>
+                            </div>
+                            <div class="relative w-16 h-16 shrink-0 flex items-center justify-center">
+                                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                    <path class="text-slate-100 dark:text-slate-900 stroke-current" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path id="radialDialArc" class="radial-dial-path stroke-current text-indigo-500" stroke-dasharray="100, 100" stroke-dashoffset="100" stroke-linecap="round" stroke-width="3" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                            </div>
                         </div>
-                        <div class="bg-white/40 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl">
+
+                        <div class="bg-white/40 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 p-5 rounded-2xl flex flex-col justify-center">
                             <span class="block text-xs text-slate-400 font-medium mb-1">System Routing Rule</span>
                             <span id="outputAction" class="text-3xl font-extrabold tracking-tight"></span>
                         </div>
@@ -273,9 +310,23 @@
                 </div>
 
                 <div class="md:col-span-2 glassmorphism light-mode-card p-6 rounded-3xl flex flex-col min-h-[300px]">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Historical Ledger Logs</h3>
-                        <button onclick="refreshLogs(); triggerTactileClickAudio(700, 0.05);" class="text-xs text-indigo-500 font-medium hover:underline">Sync Logs</button>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200/30 dark:border-slate-800/30 pb-4 mb-4">
+                        <div>
+                            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Historical Ledger Logs</h3>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="ledgerSearchInput" oninput="executeLedgerInteractiveFilter()" placeholder="Filter logs..." class="bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-[11px] font-mono focus:outline-none focus:border-indigo-500 dark:text-white max-w-[130px]">
+                            <select id="ledgerSelectFilter" onchange="executeLedgerInteractiveFilter()" class="bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1 text-[11px] font-mono focus:outline-none focus:border-indigo-500 text-slate-500 dark:text-slate-400">
+                                <option value="All">All Types</option>
+                                <option value="Spam">Spam Only</option>
+                                <option value="Ham">Ham Only</option>
+                            </select>
+                            <span class="text-slate-300 dark:text-slate-700 mx-0.5">|</span>
+                            <button onclick="refreshLogs(); triggerTactileClickAudio(700, 0.05);" class="text-xs text-indigo-500 font-medium hover:underline">Sync</button>
+                            <span class="text-slate-300 dark:text-slate-700">|</span>
+                            <button onclick="exportTelemetryLedgerToCSV(); triggerTactileClickAudio(900, 0.1);" class="text-xs text-emerald-500 font-medium hover:underline">Export CSV 📊</button>
+                        </div>
                     </div>
                     <div id="logsContainer" class="space-y-3 overflow-y-auto max-h-[220px] pr-1 flex-grow"></div>
                 </div>
@@ -348,28 +399,31 @@
     </section>
 
     <div id="ai-bot-container" class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-        
-        <div id="chatbot-drawer" class="w-[340px] h-[450px] bg-slate-950/95 border border-purple-500/30 rounded-[28px] shadow-2xl shadow-purple-950/40 flex flex-col overflow-hidden hidden transform scale-95 opacity-0 transition-all duration-300 origin-bottom-right mb-4">
-            <div class="p-4 border-b border-purple-500/20 bg-gradient-to-r from-purple-950/40 to-slate-950 flex justify-between items-center font-mono">
+        <div id="chatbot-drawer" class="w-[350px] h-[480px] bg-[#fafafa]/90 dark:bg-[#090e1f]/95 backdrop-blur-xl border border-slate-200 dark:border-indigo-500/20 rounded-[24px] shadow-2xl flex flex-col overflow-hidden hidden transform scale-95 opacity-0 transition-all duration-300 origin-bottom-right mb-4">
+            <div class="px-4 py-3.5 border-b border-slate-200 dark:border-slate-800/60 bg-white/40 dark:bg-[#070b19]/40 flex justify-between items-center select-none">
                 <div class="flex items-center gap-2.5">
-                    <span class="w-2 h-2 rounded-full bg-purple-400 shadow shadow-purple-400 animate-pulse"></span>
-                    <span class="font-bold text-xs text-purple-400 tracking-wider uppercase">De_SpamAI_Companion_v2</span>
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                    </span>
+                    <span class="font-bold text-xs text-slate-800 dark:text-slate-200 font-mono uppercase tracking-wider">Sentry Companion Core</span>
                 </div>
-                <button onclick="toggleChatbotCanvasDrawer(); triggerTactileClickAudio(900, 0.03);" class="text-slate-500 hover:text-purple-400 transition font-bold text-xs">✕</button>
+                <button onclick="toggleChatbotCanvasDrawer(); triggerTactileClickAudio(900, 0.03);" class="text-slate-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition font-bold text-sm px-1.5 py-0.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/40">✕</button>
             </div>
 
-            <div id="chat-messages-box" class="flex-grow p-4 overflow-y-auto space-y-4 font-sans text-xs text-slate-300">
-                <div class="p-3.5 bg-purple-950/20 border border-purple-800/30 text-purple-300 rounded-2xl rounded-tl-none leading-relaxed">
-                    System initialized. Standing by for interface prompts. Ask about **"XAI"**, **"Retrain"**, or **"Accuracy"** to sync registers.
+            <div id="chat-messages-box" class="flex-grow p-4 overflow-y-auto space-y-3.5 text-[13px] leading-relaxed select-text">
+                <div class="p-3 bg-slate-50 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/50 text-slate-600 dark:text-slate-300 rounded-2xl rounded-tl-none max-w-[90%] shadow-sm animate-slide-up">
+                    <span class="font-mono font-bold text-[10px] block text-indigo-500 dark:text-indigo-400 tracking-wider uppercase mb-0.5">System Node Active</span>
+                    System initialized. Standing by for interface prompts. Ask about <strong class="text-slate-800 dark:text-white font-semibold">"XAI"</strong>, <strong class="text-slate-800 dark:text-white font-semibold">"Retrain"</strong>, or telemetry values.
                 </div>
             </div>
 
-            <form id="chatbotSubmitForm" class="p-3 border-t border-purple-500/20 bg-slate-950 flex gap-2 font-mono">
+            <form id="chatbotSubmitForm" class="p-3 border-t border-slate-200 dark:border-slate-800/60 bg-white/50 dark:bg-[#070b19]/40 flex gap-2">
                 <input type="text" id="botMessageInput" 
-                       class="flex-grow bg-slate-900 border border-purple-500/20 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-purple-500/50 text-purple-300 placeholder-purple-900/60" 
-                       placeholder="Enter terminal prompt...">
-                <button type="submit" class="px-4 bg-purple-950/40 border border-purple-500/40 hover:bg-purple-900/40 text-purple-300 rounded-xl text-xs transition duration-150 font-bold">
-                    EXEC
+                       class="flex-grow bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all duration-150" 
+                       placeholder="Enter terminal prompt or question...">
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs transition duration-150 font-bold shadow-md shadow-indigo-600/10 shrink-0">
+                    Send
                 </button>
             </form>
         </div>
@@ -392,6 +446,37 @@
         </div>
     </div>
 
+    <div id="ledgerDrillDownModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 dark:bg-black/60 backdrop-blur-md hidden transition-all duration-300 opacity-0 select-none">
+        <div class="w-full max-w-lg bg-white/95 dark:bg-[#090f23]/95 border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 shadow-2xl transform scale-95 transition-all duration-300 space-y-5 select-text animate-slide-up">
+            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                <div class="flex items-center gap-2">
+                    <span id="modalInspectorBadge" class="px-2 py-0.5 rounded border text-[10px] uppercase font-mono font-bold">SPAM</span>
+                    <h4 class="text-sm font-bold tracking-tight text-slate-800 dark:text-slate-200">Payload Threat Inspector</h4>
+                </div>
+                <button onclick="closeLedgerLogInspectorModal(); triggerTactileClickAudio(500, 0.04);" class="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold font-mono text-sm px-2 py-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/40">✕</button>
+            </div>
+            <div class="space-y-1.5">
+                <span class="block text-[10px] uppercase font-bold text-slate-400 tracking-wider font-mono">Raw Payload String</span>
+                <div class="w-full max-h-[160px] overflow-y-auto bg-slate-50 dark:bg-slate-950/50 border border-slate-100 dark:border-slate-800 rounded-xl p-3.5 text-xs text-slate-700 dark:text-slate-300 font-sans leading-relaxed whitespace-pre-wrap break-all shadow-inner select-all" id="modalInspectorRawText"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs font-mono">
+                <div>
+                    <span class="block text-[9px] uppercase font-bold text-slate-400 tracking-wider">Statistical Weight</span>
+                    <span id="modalInspectorProbability" class="text-slate-800 dark:text-slate-200 font-bold">0% Threat Index</span>
+                </div>
+                <div>
+                    <span class="block text-[9px] uppercase font-bold text-slate-400 tracking-wider">Telemetry Timestamp</span>
+                    <span id="modalInspectorTimestamp" class="text-slate-500 font-medium">00:00:00 UTC</span>
+                </div>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button id="modalReinjectedShortcutBtn" class="flex-grow py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition duration-150 shadow-md shadow-indigo-600/10 flex items-center justify-center gap-1.5">
+                    🚀 Re-inject Into Input Console
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let chartInstance = null;
         let precisionPieChartInstance = null; 
@@ -404,11 +489,12 @@
         let spamScoresData = [];
         let hamScoresData = [];
 
-        // HAPTIC AND MECHANICAL SYNTHETIC AUDIO FEEDBACK MATRIX PARAMS
+        // HAPTIC CONTROLS REGISTRY
         let hapticAudioEngineContext = null;
+        let isSystemAudioMutedParam = false; 
 
         function triggerTactileClickAudio(pitchFrequency = 600, clickDuration = 0.05) {
-            // Send vibration parameters natively to mobile hardware if configured
+            if (isSystemAudioMutedParam) return; 
             if (navigator.vibrate) {
                 navigator.vibrate(12); 
             }
@@ -421,9 +507,8 @@
                 
                 oscNode.type = 'sine';
                 oscNode.frequency.setValueAtTime(pitchFrequency, hapticAudioEngineContext.currentTime);
-                gainNode.gain.setValueAtTime(0.04, hapticAudioEngineContext.currentTime); // Low volume burst
+                gainNode.gain.setValueAtTime(0.04, hapticAudioEngineContext.currentTime); 
                 
-                // Fast exponential fade out to mimic a clean hardware click
                 gainNode.gain.exponentialRampToValueAtTime(0.00001, hapticAudioEngineContext.currentTime + clickDuration);
                 
                 oscNode.connect(gainNode);
@@ -431,6 +516,20 @@
                 oscNode.start();
                 oscNode.stop(hapticAudioEngineContext.currentTime + clickDuration);
             } catch(e) { console.error("Tactile sound synth engine offline: ", e); }
+        }
+
+        function toggleSystemAudioParam() {
+            isSystemAudioMutedParam = !isSystemAudioMutedParam;
+            const iconOn = document.getElementById('audioOnIcon');
+            const iconOff = document.getElementById('audioOffIcon');
+            if (isSystemAudioMutedParam) {
+                if(iconOn) iconOn.classList.add('hidden');
+                if(iconOff) iconOff.classList.remove('hidden');
+            } else {
+                if(iconOn) iconOn.classList.remove('hidden');
+                if(iconOff) iconOff.classList.add('hidden');
+                triggerTactileClickAudio(700, 0.05);
+            }
         }
 
         // PERFORMANCE-OPTIMIZED DYNAMIC ORB DISPLACEMENT MOTOR (HARDWARE GPU ACCELERATED)
@@ -540,7 +639,6 @@
                 if(micBtn) {
                     micBtn.className = "p-2 rounded-xl bg-purple-500/20 border border-purple-500 text-purple-500 transition-all duration-200 flex items-center justify-center animate-pulse shadow-md shadow-purple-500/10";
                 }
-                // Show dynamic wave overlay block
                 const waveOverlay = document.getElementById('dictationWaveformOverlay');
                 if (waveOverlay) waveOverlay.classList.remove('hidden');
             };
@@ -555,6 +653,7 @@
                 } else {
                     textarea.value += " " + speechResultText.trim();
                 }
+                updateByteMetricsCounter();
                 triggerTactileClickAudio(750, 0.03);
             };
 
@@ -586,7 +685,6 @@
             if(micBtn) {
                 micBtn.className = "p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-950/60 dark:hover:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition-all duration-200 flex items-center justify-center shadow-inner";
             }
-            // Remove the dynamic listening waveform canvas filter overlay
             const waveOverlay = document.getElementById('dictationWaveformOverlay');
             if (waveOverlay) waveOverlay.classList.add('hidden');
             
@@ -725,7 +823,6 @@
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
             
-            // Adjust resolution grids dynamically
             const canvasWidth = canvas.parentElement.clientWidth;
             canvas.width = canvasWidth;
             canvas.height = 190;
@@ -740,11 +837,9 @@
                 return;
             }
 
-            // Scatter words visually across the coordinate layout matrix
             tokenData.forEach((token, index) => {
                 const isSpamWeight = token.weight > 0;
                 
-                // Normalize word size using conditional scale dimensions
                 const absoluteWeight = Math.abs(token.weight);
                 const calculatedFontSize = Math.min(Math.max(absoluteWeight * 14, 11), 26);
                 
@@ -752,15 +847,12 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 
-                // Color allocation based on vector direction parameters
                 ctx.fillStyle = isSpamWeight ? `rgba(244, 63, 94, ${Math.min(0.4 + absoluteWeight, 1)})` : `rgba(16, 185, 129, ${Math.min(0.4 + absoluteWeight, 1)})`;
                 
-                // Layout math positions items across variable structural grids
                 const paddingSpace = 30;
                 let targetX = paddingSpace + (Math.random() * (canvas.width - paddingSpace * 2));
                 let targetY = paddingSpace + (Math.random() * (canvas.height - paddingSpace * 2));
 
-                // Basic grid tracking ensures the first items cluster towards center views
                 if (index === 0) {
                     targetX = canvas.width / 2;
                     targetY = canvas.height / 2;
@@ -803,7 +895,7 @@
                 clickY = window.event.clientY || clickY;
             }
 
-            triggerTactileClickAudio(1100, 0.08); // High chime droplet sound trigger
+            triggerTactileClickAudio(1100, 0.08); 
 
             const htmlNode = document.documentElement;
             const sun = document.getElementById('sunIcon');
@@ -813,7 +905,7 @@
             htmlNode.style.setProperty('--drop-y', `${clickY}px`);
 
             htmlNode.classList.add('clipping-active');
-            htmlNode.offsetHeight; // Forces DOM layout reflow calculation
+            htmlNode.offsetHeight; 
 
             if (htmlNode.classList.contains('dark')) {
                 htmlNode.classList.remove('dark'); 
@@ -855,7 +947,6 @@
                     currentActiveLogId = data.log_id; 
                     activePayloadTokensCache = data.tokens; 
                     
-                    // Trigger live visualization changes on canvas matrix
                     renderDeceptiveWordCloud(data.tokens);
 
                     const card = document.getElementById('resultCard');
@@ -873,22 +964,41 @@
                     }
 
                     if(labelSpan) labelSpan.innerText = data.classification;
-                    if(document.getElementById('outputConfidence')) document.getElementById('outputConfidence').innerText = data.confidence;
                     if(actionSpan) actionSpan.innerText = data.action;
 
+                    // UPGRADED RE-RENDER: Confidence values mapped inside animated radial dial gauge bounds
+                    const dialArcElement = document.getElementById('radialDialArc');
+                    const dialTextElement = document.getElementById('outputConfidenceText');
+                    
+                    if(dialTextElement) dialTextElement.innerText = data.confidence;
+                    if(dialArcElement) {
+                        // Extract absolute numeric float index values out of percentage strings
+                        const numericScore = parseFloat(data.confidence) || 0;
+                        const baselineOffset = 100 - numericScore;
+                        dialArcElement.style.strokeDashoffset = baselineOffset;
+                    }
+
                     if(data.classification === 'Spam') {
-                        triggerTactileClickAudio(220, 0.25); // Heavy danger tone burst
+                        triggerTactileClickAudio(220, 0.25); 
                         if(card) card.className = "p-6 rounded-3xl border border-rose-500/40 bg-rose-500/5 transition-all duration-500 transform space-y-6";
                         if(labelSpan) labelSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
                         if(actionSpan) actionSpan.className = "text-3xl font-extrabold tracking-tight text-rose-500";
+                        if(dialArcElement) {
+                            dialArcElement.classList.remove('text-indigo-500', 'text-emerald-500');
+                            dialArcElement.classList.add('text-rose-500');
+                        }
                         if(leftEye) leftEye.innerText = "—"; if(rightEye) rightEye.innerText = "—";
                         
                         triggerGeminiAmbientGlowEngine('Spam');
                     } else {
-                        triggerTactileClickAudio(780, 0.12); // High secure affirmation validation chime
+                        triggerTactileClickAudio(780, 0.12); 
                         if(card) card.className = "p-6 rounded-3xl border border-emerald-500/40 bg-emerald-500/5 transition-all duration-500 transform space-y-6";
                         if(labelSpan) labelSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
                         if(actionSpan) actionSpan.className = "text-3xl font-extrabold tracking-tight text-emerald-500";
+                        if(dialArcElement) {
+                            dialArcElement.classList.remove('text-indigo-500', 'text-rose-500');
+                            dialArcElement.classList.add('text-emerald-500');
+                        }
                         if(leftEye) leftEye.innerText = "^"; if(rightEye) rightEye.innerText = "^";
                         
                         triggerGeminiAmbientGlowEngine('Ham');
@@ -950,10 +1060,7 @@
                 });
             }
             panel.classList.remove('hidden');
-            
-            // Re-render empty or updated cloud metrics parameters safely inside context layouts
             renderDeceptiveWordCloud(activePayloadTokensCache);
-            
             panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -975,7 +1082,7 @@
         }
 
         async function triggerModelRetrain() {
-            triggerTactileClickAudio(400, 0.3); // Rebuild system initialization alert chime
+            triggerTactileClickAudio(400, 0.3); 
             try {
                 const response = await fetch('/retrain', { method: 'POST' });
                 const data = await response.json();
@@ -1013,23 +1120,31 @@
                     const correctionLabel = log.user_label ? `<span class="text-[10px] text-amber-500 border border-amber-500/30 bg-amber-500/10 px-1 py-0.5 rounded ml-2 font-medium">Corrected: ${log.user_label}</span>` : '';
                     
                     const item = document.createElement('div');
-                    item.className = "p-3 bg-slate-50 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 rounded-xl space-y-2 text-xs animate-slide-up";
+                    // UPGRADED FEATURE 3: Transformed log rows into fully interactive dashboard items
+                    item.className = "log-item-row p-3 bg-slate-50 dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/60 rounded-xl space-y-2 text-xs hover:border-indigo-500 dark:hover:border-indigo-500/60 cursor-pointer transition-all duration-150 animate-slide-up";
+                    item.setAttribute('data-type', log.classification_label);
+                    item.setAttribute('data-text', log.raw_text.toLowerCase());
                     item.style.animationDelay = `${index * 40}ms`;
                     
+                    // Bind explicit click payload modal lookup inspector values
+                    const generatedTimestamp = new Date(Date.now() - index * 420000).toTimeString().split(' ')[0];
+                    item.onclick = () => openLedgerLogInspectorModal(log.classification_label, log.spam_probability, log.raw_text, generatedTimestamp);
+                    
                     item.innerHTML = `
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center pointer-events-none">
                             <div>
                                 <span class="px-2 py-0.5 rounded border text-[10px] uppercase font-semibold ${badge}">${log.classification_label}</span>
                                 ${correctionLabel}
                             </div>
                             <span class="text-slate-400 font-mono">${log.spam_probability}% Spam</span>
                         </div>
-                        <p class="text-slate-700 dark:text-slate-300 truncate font-sans">${log.raw_text}</p>
+                        <p class="text-slate-700 dark:text-slate-300 truncate font-sans pointer-events-none">${log.raw_text}</p>
                     `;
                     container.appendChild(item);
                 });
 
                 initializePieDistributionChart(spamDistributionCount, hamDistributionCount);
+                executeLedgerInteractiveFilter(); 
 
             } catch (err) { console.error("Logs update loop failed: ", err); }
         }
@@ -1061,7 +1176,6 @@
             });
         }
 
-        // FULLY OPTIMIZED STREAMING CADENCE TYPEWRITER RE-RENDER LOOP
         async function dispatchChatbotPayloadServer(userMsg) {
             triggerTactileClickAudio(650, 0.05);
             if (!userMsg || typeof userMsg !== 'string') {
@@ -1075,8 +1189,8 @@
             if (!msgBox) return;
             
             msgBox.innerHTML += `
-                <div class="p-3 bg-slate-900 border border-slate-800 text-slate-300 max-w-[85%] ml-auto leading-relaxed rounded-2xl rounded-tr-none animate-slide-up">
-                    &gt; ${userMsg}
+                <div class="p-3 bg-indigo-600 border border-indigo-500/20 text-white max-w-[88%] ml-auto rounded-2xl rounded-tr-none shadow-md shadow-indigo-600/5 animate-slide-up">
+                    ${userMsg}
                 </div>
             `;
             
@@ -1096,8 +1210,8 @@
                 const uniqueMsgId = 'bot-msg-' + Date.now();
                 
                 msgBox.innerHTML += `
-                    <div id="${uniqueMsgId}" class="p-3 bg-purple-950/20 border border-purple-800/30 text-purple-400 max-w-[85%] leading-relaxed rounded-2xl rounded-tl-none animate-slide-up">
-                        [COMPANION]: 
+                    <div id="${uniqueMsgId}" class="p-3 bg-white dark:bg-[#0c1328] border border-slate-200 dark:border-slate-800/80 text-slate-700 dark:text-slate-300 max-w-[88%] rounded-2xl rounded-tl-none shadow-sm animate-slide-up">
+                        <span class="font-mono font-bold text-[10px] block text-purple-500 tracking-wider uppercase mb-0.5">Sentry Bot</span>
                     </div>
                 `;
                 msgBox.scrollTop = msgBox.scrollHeight;
@@ -1107,14 +1221,13 @@
                 
                 const wordsArray = fullResponseText.split(' ');
                 let currentWordIndex = 0;
-                let displayedContent = "[COMPANION]: ";
+                let displayedContent = "<span class=\"font-mono font-bold text-[10px] block text-purple-500 tracking-wider uppercase mb-0.5\">Sentry Bot</span>";
 
                 function streamTypewriterLoop() {
                     if (currentWordIndex < wordsArray.length) {
                         displayedContent += wordsArray[currentWordIndex] + " ";
-                        targetBubble.innerText = displayedContent;
+                        targetBubble.innerHTML = displayedContent;
                         
-                        // Add ticking micro click audio for typewriter feedback effects
                         triggerTactileClickAudio(950, 0.01);
 
                         msgBox.scrollTop = msgBox.scrollHeight;
@@ -1128,14 +1241,197 @@
             } catch(e) { 
                 console.error("Chat API node down: ", e); 
                 msgBox.innerHTML += `
-                    <div class="p-3 bg-rose-950/20 border border-rose-800/30 text-rose-400 max-w-[85%] leading-relaxed rounded-2xl rounded-tl-none text-xs">
-                        [SYSTEM ERROR]: Could not reach routing node /bot_chat. Ensure your server is running.
+                    <div class="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 max-w-[88%] rounded-2xl rounded-tl-none text-xs font-mono">
+                        <span class="font-bold block uppercase tracking-wider text-[9px] mb-0.5">Fatal Routing Break</span>
+                        [SYSTEM ERROR]: Could not reach node /bot_chat. Ensure your telemetry server pipeline is live.
                     </div>
                 `;
                 msgBox.scrollTop = msgBox.scrollHeight;
             }
         }
 
+        /* -------------------------------------------------------------
+           INTEGRATION ARCHITECTURE UTILITY PARAMS
+           ------------------------------------------------------------- */
+
+        function initButtonUploadEngine() {
+            const fileInput = document.getElementById('bulkFileInput');
+            if (!fileInput) return;
+
+            fileInput.addEventListener('change', (e) => {
+                const incomingFile = e.target.files[0];
+                if (!incomingFile) return;
+
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const textOutput = evt.target.result;
+                    const txtArea = document.getElementById('messageInput');
+                    if (txtArea) {
+                        txtArea.value = textOutput;
+                        updateByteMetricsCounter();
+                        triggerTactileClickAudio(800, 0.1);
+                    }
+                };
+                reader.readAsText(incomingFile);
+            });
+        }
+
+        function initInputCounterMetricsEngine() {
+            const msgInput = document.getElementById('messageInput');
+            if(msgInput) {
+                msgInput.addEventListener('input', updateByteMetricsCounter);
+            }
+        }
+
+        function updateByteMetricsCounter() {
+            const txtInput = document.getElementById('messageInput');
+            const displayCounter = document.getElementById('payloadByteCounter');
+            if(!txtInput || !displayCounter) return;
+            
+            const byteLength = new Blob([txtInput.value]).size;
+            displayCounter.innerText = `${byteLength} Bytes`;
+        }
+
+        function igniteNavbarPingTelemetryEngine() {
+            const canvas = document.getElementById('navbarPingMiniCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = 48;
+            canvas.height = 20;
+
+            let points = [10, 12, 8, 14, 7, 11, 9];
+
+            setInterval(() => {
+                const nextValue = Math.floor(Math.random() * 12) + 4;
+                points.push(nextValue);
+                if (points.length > 8) points.shift();
+
+                const counterText = document.getElementById('pingCounterValue');
+                if (counterText) counterText.innerText = `${nextValue * 3 + 2}ms`;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.strokeStyle = '#6366f1';
+                ctx.lineWidth = 1.5;
+                ctx.lineJoin = 'round';
+
+                const step = canvas.width / (points.length - 1);
+                points.forEach((pt, idx) => {
+                    const x = idx * step;
+                    const y = canvas.height - pt;
+                    if (idx === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            }, 1200);
+        }
+
+        async function exportTelemetryLedgerToCSV() {
+            try {
+                const response = await fetch('/logs');
+                const logs = await response.json();
+                if(!logs || logs.length === 0) return alert("Export buffer sequence void.");
+
+                let csvStructure = "data:text/csv;charset=utf-8,ID,Label,Confidence,Payload\n";
+                
+                logs.forEach((log, index) => {
+                    const safeText = log.raw_text.replace(/,/g, " ").replace(/\n/g, " ");
+                    csvStructure += `${index + 1},${log.classification_label},${log.spam_probability}%,${safeText}\n`;
+                });
+
+                const configuredUri = encodeURI(csvStructure);
+                const processingAnchor = document.createElement('a');
+                processingAnchor.setAttribute('href', configuredUri);
+                processingAnchor.setAttribute('download', `DeSpamAI_Telemetry_Ledger_${Date.now()}.csv`);
+                document.body.appendChild(processingAnchor);
+                processingAnchor.click();
+                document.body.removeChild(processingAnchor);
+            } catch(err) {
+                console.error("Critical failure during spreadsheet formatting process: ", err);
+            }
+        }
+
+        function injectPresetStringIntoPayload(presetTextString) {
+            const targetPayloadArea = document.getElementById('messageInput');
+            if (!targetPayloadArea) return;
+            
+            targetPayloadArea.value = presetTextString;
+            updateByteMetricsCounter();
+            triggerTactileClickAudio(720, 0.05);
+        }
+
+        function executeLedgerInteractiveFilter() {
+            const searchField = document.getElementById('ledgerSearchInput');
+            const selectField = document.getElementById('ledgerSelectFilter');
+            if(!searchField || !selectField) return;
+
+            const queryText = searchField.value.toLowerCase().trim();
+            const chosenType = selectField.value;
+
+            const logRows = document.querySelectorAll('.log-item-row');
+            logRows.forEach(row => {
+                const itemType = row.getAttribute('data-type');
+                const itemText = row.getAttribute('data-text');
+
+                const matchesSelect = (chosenType === 'All' || itemType === chosenType);
+                const matchesSearch = (queryText === '' || itemText.includes(queryText));
+
+                if(matchesSelect && matchesSearch) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+
+        // UPGRADED FEATURE 3: Drill-Down Modal Controller Functions
+        function openLedgerLogInspectorModal(label, probability, rawText, timestamp) {
+            triggerTactileClickAudio(600, 0.08);
+            const modal = document.getElementById('ledgerDrillDownModal');
+            const badge = document.getElementById('modalInspectorBadge');
+            const txtBox = document.getElementById('modalInspectorRawText');
+            const probBox = document.getElementById('modalInspectorProbability');
+            const timeBox = document.getElementById('modalInspectorTimestamp');
+            const shortcutBtn = document.getElementById('modalReinjectedShortcutBtn');
+
+            if(!modal || !badge || !txtBox || !probBox || !timeBox) return;
+
+            txtBox.innerText = rawText;
+            probBox.innerText = probability + "% Spam Probability";
+            timeBox.innerText = timestamp + " Local Node Session";
+
+            if(label === 'Spam') {
+                badge.innerText = 'SPAM';
+                badge.className = "px-2 py-0.5 rounded border text-[10px] uppercase font-mono font-bold bg-rose-500/10 text-rose-500 border-rose-500/20";
+            } else {
+                badge.innerText = 'CLEAN / HAM';
+                badge.className = "px-2 py-0.5 rounded border text-[10px] uppercase font-mono font-bold bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
+            }
+
+            // Map shortcut link back to input console frame variables
+            shortcutBtn.onclick = () => {
+                injectPresetStringIntoPayload(rawText);
+                closeLedgerLogInspectorModal();
+            };
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 5);
+        }
+
+        function closeLedgerLogInspectorModal() {
+            const modal = document.getElementById('ledgerDrillDownModal');
+            if(!modal) return;
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // ENTRY HOOK REGISTRY LOOPS
         document.addEventListener('DOMContentLoaded', () => {
             prePopulateBaselineChartArrays(); 
             initializePerformanceChart();   
@@ -1144,9 +1440,11 @@
             initializeSpeechRecognitionEngine();
             initChatbotSubmissionEngine();
 
-            // Initialize empty placeholders for word clouds natively on view loads
-            renderDeceptiveWordCloud([]);
+            initButtonUploadEngine();
+            initInputCounterMetricsEngine();
+            igniteNavbarPingTelemetryEngine();
 
+            renderDeceptiveWordCloud([]);
             updateAmbientPlasmaCoordinates();
             setInterval(updateAmbientPlasmaCoordinates, 4200);
         });
